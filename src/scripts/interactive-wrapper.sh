@@ -4,6 +4,10 @@
 
 set -e
 
+# Source common functions
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/common-project.sh"
+
 COMMAND="$1"
 PROJECT_NAME="$2"
 
@@ -49,7 +53,11 @@ echo ""
 projects=()
 statuses=()
 
-for project_dir in ../*/.agent; do
+# Determine workspace base directory
+WORKSPACE_BASE="${PROJECT_WORKSPACE:-/home/developer/code}"
+
+# Search across all git sources
+for project_dir in "$WORKSPACE_BASE"/*/*/.agent "$WORKSPACE_BASE"/*/*/*/.agent; do
     if [ ! -d "$project_dir" ]; then
         continue
     fi
