@@ -223,7 +223,7 @@ You can run the agent locally without TFGrid:
 
 ```bash
 # Clone the repo
-git clone https://github.com/tfgrid-compose/tfgrid-ai-agent
+git clone https://github.com/tfgrid-studio/tfgrid-ai-agent
 cd tfgrid-ai-agent
 
 # Run setup manually
@@ -253,12 +253,12 @@ Apache 2.0
 
 ## Links
 
-- **GitHub:** [tfgrid-compose/tfgrid-ai-agent](https://github.com/tfgrid-compose/tfgrid-ai-agent)
-- **Documentation:** [docs.tfgrid-compose.io](https://docs.tfgrid-compose.io)
-- **TFGrid Compose:** [github.com/tfgrid-compose](https://github.com/tfgrid-compose)
+- **GitHub:** [tfgrid-studio/tfgrid-ai-agent](https://github.com/tfgrid-studio/tfgrid-ai-agent)
+- **Documentation:** [docs.tfgrid.studio](https://docs.tfgrid.studio)
+- **TFGrid Studio:** [github.com/tfgrid-studio](https://github.com/tfgrid-studio)
 
 ---
 
-**Part of:** [TFGrid Compose](https://github.com/tfgrid-compose)  
-**Status:** 🚧 In Development (MVP)  
-**Version:** 2.0.0 (pre-release)
+**Part of:** [TFGrid Studio](https://github.com/tfgrid-studio)  
+**Status:** ✅ Production Ready  
+**Version:** 2.0.0
