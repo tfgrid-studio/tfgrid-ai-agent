@@ -8,10 +8,14 @@ echo "AI Agent Projects Status"
 echo "========================="
 echo ""
 
+# Determine workspace base directory
+WORKSPACE_BASE="${PROJECT_WORKSPACE:-/opt/ai-agent}"
+PROJECTS_DIR="$WORKSPACE_BASE/projects"
+
 # Find all projects with .agent directory
 found_projects=false
 
-for project_dir in ../*/.agent; do
+for project_dir in "$PROJECTS_DIR"/*/.agent; do
     if [ ! -d "$project_dir" ]; then
         continue
     fi

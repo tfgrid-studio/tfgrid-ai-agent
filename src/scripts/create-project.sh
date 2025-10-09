@@ -59,9 +59,17 @@ if [ -z "$PROJECT_NAME" ]; then
     exit 1
 fi
 
+# Determine workspace base directory
+WORKSPACE_BASE="${PROJECT_WORKSPACE:-/opt/ai-agent}"
+PROJECTS_DIR="$WORKSPACE_BASE/projects"
+
+# Create projects directory if it doesn't exist
+mkdir -p "$PROJECTS_DIR"
+
 # Check if project already exists in workspace
-if [ -d "../$PROJECT_NAME" ]; then
+if [ -d "$PROJECTS_DIR/$PROJECT_NAME" ]; then
     echo "❌ Error: Project '$PROJECT_NAME' already exists in workspace"
+    exit 1
 fi
 
 # Get time duration with validation
@@ -101,10 +109,10 @@ while [ -z "$TIME_TEXT" ]; do
     fi
 done
 
-# Create project directory in parent directory
+# Create project directory in projects subdirectory
 echo "🔧 Creating project directory..."
-mkdir -p "../$PROJECT_NAME"
-cd "../$PROJECT_NAME"
+mkdir -p "$PROJECTS_DIR/$PROJECT_NAME"
+cd "$PROJECTS_DIR/$PROJECT_NAME"
 
 # Initialize git repo
 echo "🔧 Initializing git repository..."
