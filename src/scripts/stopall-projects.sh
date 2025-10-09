@@ -1,18 +1,22 @@
 #!/bin/bash
-# stopall-projects.sh - Stop all running projects
-# Part of the AI-Agent framework
+# stopall-projects.sh - Stop all running AI agent loops
+# This stops all running agent loops across all projects in the workspace
 
 set -e
 
-echo "🛑 Stopping All Running Projects"
-echo "================================="
+echo " Stopping All AI Agent Loops"
+echo "=============================="
 echo ""
 
-# Find all running projects
+# Determine workspace base directory
+WORKSPACE_BASE="${PROJECT_WORKSPACE:-/opt/ai-agent}"
+PROJECTS_DIR="$WORKSPACE_BASE/projects"
+
+# Collect all running projects
 running_projects=()
 running_pids=()
 
-for project_dir in ../*/.agent; do
+for project_dir in "$PROJECTS_DIR"/*/.agent; do
     if [ ! -d "$project_dir" ]; then
         continue
     fi

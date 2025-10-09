@@ -9,6 +9,10 @@ select_project() {
     local prompt_msg="${1:-Select project}"
     local default_action="${2:-}"
     
+    # Determine workspace base directory
+    local workspace_base="${PROJECT_WORKSPACE:-/opt/ai-agent}"
+    local projects_dir="$workspace_base/projects"
+    
     # Get list of projects
     local projects=()
     while IFS= read -r project_dir; do
@@ -18,7 +22,7 @@ select_project() {
                 projects+=("$project_name")
             fi
         fi
-    done < <(find .. -maxdepth 2 -name ".agent" -type d -exec dirname {} \;)
+    done < <(find "$projects_dir" -maxdepth 2 -name ".agent" -type d -exec dirname {} \;)
     
     # Check if any projects exist
     if [ ${#projects[@]} -eq 0 ]; then
