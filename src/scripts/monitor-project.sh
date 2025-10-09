@@ -35,6 +35,7 @@ if [ -f "agent-output.log" ]; then
     echo "📄 Recent output log entries:"
     tail -20 agent-output.log
     echo ""
+fi
 
 if [ -f "agent-errors.log" ]; then
     ERROR_COUNT=$(wc -l < agent-errors.log 2>/dev/null || echo "0")
