@@ -9,13 +9,13 @@ echo "========================="
 echo ""
 
 # Determine workspace base directory
-WORKSPACE_BASE="${PROJECT_WORKSPACE:-/opt/ai-agent}"
-PROJECTS_DIR="$WORKSPACE_BASE/projects"
+WORKSPACE_BASE="${PROJECT_WORKSPACE:-/home/developer/code}"
 
-# Find all projects with .agent directory
+# Find all projects with .agent directory across all git sources
 found_projects=false
 
-for project_dir in "$PROJECTS_DIR"/*/.agent; do
+# Search in github.com, git.ourworld.tf, gitlab.com, etc.
+for project_dir in "$WORKSPACE_BASE"/*/*/.agent "$WORKSPACE_BASE"/*/*/*/.agent; do
     if [ ! -d "$project_dir" ]; then
         continue
     fi

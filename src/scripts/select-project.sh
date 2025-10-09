@@ -10,10 +10,9 @@ select_project() {
     local default_action="${2:-}"
     
     # Determine workspace base directory
-    local workspace_base="${PROJECT_WORKSPACE:-/opt/ai-agent}"
-    local projects_dir="$workspace_base/projects"
+    local workspace_base="${PROJECT_WORKSPACE:-/home/developer/code}"
     
-    # Get list of projects
+    # Get list of projects across all git sources
     local projects=()
     while IFS= read -r project_dir; do
         if [ -d "$project_dir" ]; then
@@ -22,7 +21,7 @@ select_project() {
                 projects+=("$project_name")
             fi
         fi
-    done < <(find "$projects_dir" -maxdepth 2 -name ".agent" -type d -exec dirname {} \;)
+    done < <(find "$workspace_base" -maxdepth 4 -name ".agent" -type d -exec dirname {} \;)
     
     # Check if any projects exist
     if [ ${#projects[@]} -eq 0 ]; then

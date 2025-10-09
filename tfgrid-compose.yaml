@@ -48,8 +48,12 @@ environment:
     description: "Qwen API key for AI access"
     
   - name: PROJECT_WORKSPACE
-    default: /opt/ai-agent
+    default: /home/developer/code
     description: "Agent workspace directory"
+  
+  - name: RUNTIME_USER
+    default: developer
+    description: "User to run agent scripts as"
 
 # Logging configuration
 logging:

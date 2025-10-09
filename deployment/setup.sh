@@ -15,9 +15,38 @@ apt-get install -y nodejs
 echo "📦 Installing qwen-cli..."
 npm install -g @qwen-code/qwen-code
 
-# Create workspace directories
+# Create developer user if it doesn't exist
+echo "👤 Creating developer user..."
+if ! id -u developer >/dev/null 2>&1; then
+    useradd -m -s /bin/bash developer
+    echo "✅ Created developer user"
+else
+    echo "ℹ️  Developer user already exists"
+fi
+
+# Add developer to sudo group (optional, for admin tasks)
+usermod -aG sudo developer 2>/dev/null || true
+
+# Create workspace directories as developer
 echo "📁 Creating workspace..."
-mkdir -p /opt/ai-agent/{projects,logs}
+su - developer <<'EOF'
+mkdir -p ~/code/github.com
+mkdir -p ~/code/git.ourworld.tf
+mkdir -p ~/code/gitlab.com
+mkdir -p ~/.ssh
+chmod 700 ~/.ssh
+
+# Configure git
+git config --global user.name "AI Agent"
+git config --global user.email "agent@localhost"
+git config --global init.defaultBranch main
+
+echo "✅ Workspace created at ~/code"
+EOF
+
+# Create agent scripts directory (system-level for management scripts)
+echo "📁 Creating agent scripts directory..."
+mkdir -p /opt/ai-agent/{scripts,templates,logs}
 
 # Copy agent scripts
 echo "📋 Copying agent scripts..."
@@ -27,7 +56,14 @@ cp -r /tmp/app-source/templates /opt/ai-agent/
 # Make scripts executable
 chmod +x /opt/ai-agent/scripts/*.sh
 
+# Set proper ownership
+chown -R developer:developer /opt/ai-agent
+chmod -R 755 /opt/ai-agent/scripts
+
 # Create log directory
 mkdir -p /var/log/ai-agent
+chown developer:developer /var/log/ai-agent
 
 echo "✅ Setup complete"
+echo "👤 Developer user ready: /home/developer"
+echo "📁 Workspace: /home/developer/code"
