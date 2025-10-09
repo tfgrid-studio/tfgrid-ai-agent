@@ -1,0 +1,36 @@
+# Environment configuration (contains node IDs, but NOT secrets)
+.env
+
+# Terraform state
+infrastructure/.terraform/
+infrastructure/.terraform.lock.hcl
+infrastructure/*.tfstate
+infrastructure/*.tfstate.*
+infrastructure/terraform.tfvars
+infrastructure/tfplan
+
+# Ansible
+platform/inventory.ini
+platform/*.retry
+
+# Wireguard
+*.conf
+!wg-example.conf
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+
+# Agent workspace (if running locally)
+workspace/
+projects/

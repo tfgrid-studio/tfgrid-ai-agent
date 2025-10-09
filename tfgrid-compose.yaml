@@ -1,0 +1,63 @@
+name: tfgrid-ai-agent
+version: 2.0.0
+description: AI-powered coding agent with loop technique for safe AI coding
+
+# Pattern compatibility
+patterns:
+  recommended: single-vm
+  supported:
+    - single-vm
+    # Future: - k3s
+
+# Resource requirements
+resources:
+  cpu:
+    min: 2
+    recommended: 4
+  memory:
+    min: 4096
+    recommended: 8192
+  disk:
+    min: 50
+    recommended: 100
+  ports:
+    - 22:ssh
+
+# System dependencies
+dependencies:
+  system:
+    - git
+    - curl
+    - wget
+  external:
+    - nodejs: ">=18.0.0"
+    - npm: ">=9.0.0"
+    - qwen-cli: "@qwen-code/qwen-code"
+
+# Deployment hooks (called by deployer)
+hooks:
+  setup: deployment/setup.sh
+  configure: deployment/configure.sh
+  healthcheck: deployment/healthcheck.sh
+
+# Environment variables (optional)
+environment:
+  - name: QWEN_API_KEY
+    required: false
+    secret: true
+    description: "Qwen API key for AI access"
+    
+  - name: PROJECT_WORKSPACE
+    default: /opt/ai-agent
+    description: "Agent workspace directory"
+
+# Logging configuration
+logging:
+  method: systemd
+  service: tfgrid-ai-agent
+  location: /opt/ai-agent/logs/
+
+# Status check
+status:
+  method: systemd
+  service: tfgrid-ai-agent
