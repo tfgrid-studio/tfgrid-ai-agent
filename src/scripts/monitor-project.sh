@@ -1,32 +1,40 @@
 #!/bin/bash
-# monitor-project.sh - Monitor project progress
+# monitor-project.sh - Monitor a project's agent loop output
 # Part of the enhanced AI-Agent workflow
 
 set -e
+
+# Source common functions
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/common-project.sh"
 
 PROJECT_NAME="$1"
 
 if [ -z "$PROJECT_NAME" ]; then
     echo "Usage: $0 <project-name>"
-    echo "Example: $0 my-awesome-project"
     exit 1
 fi
 
-if [ ! -d "../$PROJECT_NAME" ]; then
+# Find project in workspace
+PROJECT_PATH=$(find_project_path "$PROJECT_NAME")
+
+if [ -z "$PROJECT_PATH" ]; then
     echo "❌ Error: Project '$PROJECT_NAME' not found"
+    echo ""
+    echo "Available projects:"
+    list_projects_brief
     exit 1
 fi
 
 echo "📊 Monitoring project: $PROJECT_NAME"
 echo "==============================="
 
-cd "../$PROJECT_NAME"
+cd "$PROJECT_PATH"
 
 if [ -f "agent-output.log" ]; then
     echo "📄 Recent output log entries:"
     tail -20 agent-output.log
     echo ""
-fi
 
 if [ -f "agent-errors.log" ]; then
     ERROR_COUNT=$(wc -l < agent-errors.log 2>/dev/null || echo "0")

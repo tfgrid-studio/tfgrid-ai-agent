@@ -4,6 +4,10 @@
 
 set -e
 
+# Source common functions
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/common-project.sh"
+
 PROJECT_NAME="$1"
 LINES="${2:-50}"  # Default 50 lines
 FOLLOW="${3:-true}"  # Default follow mode
@@ -13,10 +17,14 @@ if [ -z "$PROJECT_NAME" ]; then
     exit 1
 fi
 
-PROJECT_PATH="../$PROJECT_NAME"
+# Find project in workspace
+PROJECT_PATH=$(find_project_path "$PROJECT_NAME")
 
-if [ ! -d "$PROJECT_PATH" ]; then
+if [ -z "$PROJECT_PATH" ]; then
     echo "❌ Error: Project '$PROJECT_NAME' not found"
+    echo ""
+    echo "Available projects:"
+    list_projects_brief
     exit 1
 fi
 

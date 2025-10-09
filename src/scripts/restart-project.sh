@@ -1,8 +1,12 @@
 #!/bin/bash
-# restart-project.sh - Restart a running project
+# restart-project.sh - Restart AI agent loop for a project
 # Part of the AI-Agent framework
 
 set -e
+
+# Source common functions
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/common-project.sh"
 
 PROJECT_NAME="$1"
 
@@ -11,10 +15,14 @@ if [ -z "$PROJECT_NAME" ]; then
     exit 1
 fi
 
-PROJECT_PATH="../$PROJECT_NAME"
+# Find project in workspace
+PROJECT_PATH=$(find_project_path "$PROJECT_NAME")
 
-if [ ! -d "$PROJECT_PATH" ]; then
+if [ -z "$PROJECT_PATH" ]; then
     echo "❌ Error: Project '$PROJECT_NAME' not found"
+    echo ""
+    echo "Available projects:"
+    list_projects_brief
     exit 1
 fi
 

@@ -4,6 +4,10 @@
 
 set -e
 
+# Source common functions
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/common-project.sh"
+
 PROJECT_NAME="$1"
 
 if [ -z "$PROJECT_NAME" ]; then
@@ -12,16 +16,19 @@ if [ -z "$PROJECT_NAME" ]; then
     exit 1
 fi
 
-if [ ! -d "../$PROJECT_NAME" ]; then
+# Find project in workspace
+PROJECT_PATH=$(find_project_path "$PROJECT_NAME")
+
+if [ -z "$PROJECT_PATH" ]; then
     echo "❌ Error: Project '$PROJECT_NAME' not found"
+    echo ""
+    echo "Available projects:"
+    list_projects_brief
     exit 1
 fi
 
 echo "🚀 Starting AI agent loop for project: $PROJECT_NAME"
 echo "=============================================="
-
-# Get the absolute path to the project directory
-PROJECT_PATH="$(cd "../$PROJECT_NAME" && pwd)"
 
 # Start this AI agent loop in background, passing the project directory
 nohup bash "$(dirname "$0")/agent-loop.sh" "$PROJECT_PATH" > "$PROJECT_PATH/agent-output.log" 2> "$PROJECT_PATH/agent-errors.log" &

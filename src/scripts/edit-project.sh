@@ -1,28 +1,35 @@
 #!/bin/bash
-# edit-project.sh - Edit an existing AI agent project's configuration
+# edit-project.sh - Edit a project prompt to change AI behavior
 # Part of the AI-Agent framework
 
 set -e
+
+# Source common functions
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/common-project.sh"
 
 PROJECT_NAME="$1"
 
 if [ -z "$PROJECT_NAME" ]; then
     echo "Usage: $0 <project-name>"
-    echo "Example: $0 my-awesome-project"
     exit 1
 fi
 
-if [ ! -d "../$PROJECT_NAME" ]; then
+# Find project in workspace
+PROJECT_PATH=$(find_project_path "$PROJECT_NAME")
+
+if [ -z "$PROJECT_PATH" ]; then
     echo "❌ Error: Project '$PROJECT_NAME' not found"
+    echo ""
+    echo "Available projects:"
+    list_projects_brief
     exit 1
 fi
 
-echo "🔧 Editing project: $PROJECT_NAME"
-echo "=================================="
+echo "✏️  Editing project: $PROJECT_NAME"
+echo "──────────────────────────────"
 echo ""
 
-# Get absolute path to project
-PROJECT_PATH="$(cd "../$PROJECT_NAME" && pwd)"
 cd "$PROJECT_PATH"
 
 # Check current version
