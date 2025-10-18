@@ -491,10 +491,8 @@ if [ "${SKIP_AUTOSTART:-0}" != "1" ] && [ "${NON_INTERACTIVE:-0}" != "1" ]; then
     if [[ "$START_NOW" =~ ^[Yy]$ ]]; then
         echo "Starting AI agent for project '$PROJECT_NAME'..."
         echo ""
-        # Get the ai-agent directory (parent of this script's directory)
-        AGENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-        cd "$AGENT_DIR"
-        make run PROJECT_NAME="$PROJECT_NAME"  # Internal call still needs PROJECT_NAME
+        # Use the run-project.sh script directly
+        "$(dirname "${BASH_SOURCE[0]}")/run-project.sh" "$PROJECT_NAME"
     else
         echo "Next steps:"
         echo "1. cd ../$PROJECT_NAME"
