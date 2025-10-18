@@ -11,6 +11,10 @@ echo "📦 Installing Node.js..."
 curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
 apt-get install -y nodejs
 
+# Install expect for OAuth automation
+echo "📦 Installing expect..."
+apt-get install -y expect
+
 # Install qwen-cli
 echo "📦 Installing qwen-cli..."
 npm install -g @qwen-code/qwen-code

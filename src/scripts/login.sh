@@ -18,6 +18,14 @@ echo ""
 read -p "Press Enter when ready to start (or Ctrl+C to cancel)..."
 echo ""
 
+# Check if expect is installed
+if ! command -v expect &> /dev/null; then
+    echo "📦 Installing expect (required for OAuth automation)..."
+    apt-get update -qq && apt-get install -y expect
+    echo "✅ expect installed"
+    echo ""
+fi
+
 # Clean previous auth
 su - developer -c 'rm -rf ~/.qwen' 2>/dev/null || true
 
