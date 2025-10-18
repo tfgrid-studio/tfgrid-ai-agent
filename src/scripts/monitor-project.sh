@@ -1,5 +1,5 @@
 #!/bin/bash
-# monitor-project.sh - Monitor a project's agent loop output
+# monitor-project.sh - Monitor a project's agent loop output (systemd-aware)
 # Part of the enhanced AI-Agent workflow
 
 set -e
@@ -10,9 +10,22 @@ source "$SCRIPT_DIR/common-project.sh"
 
 PROJECT_NAME="$1"
 
+# If no argument, try to get from context
 if [ -z "$PROJECT_NAME" ]; then
-    echo "Usage: $0 <project-name>"
-    exit 1
+    CONTEXT_FILE="$HOME/.config/tfgrid-compose/context.yaml"
+    
+    if [ -f "$CONTEXT_FILE" ]; then
+        PROJECT_NAME=$(grep "^active_project:" "$CONTEXT_FILE" 2>/dev/null | awk '{print $2}')
+    fi
+    
+    if [ -z "$PROJECT_NAME" ]; then
+        echo "❌ No project specified and no project selected"
+        echo ""
+        echo "Either:"
+        echo "  1. Run: tfgrid-compose select-project"
+        echo "  2. Or: tfgrid-compose monitor <project-name>"
+        exit 1
+    fi
 fi
 
 # Find project in workspace
@@ -28,6 +41,17 @@ fi
 
 echo "📊 Monitoring project: $PROJECT_NAME"
 echo "==============================="
+
+# Check systemd status
+if systemctl is-active --quiet "tfgrid-ai-project@${PROJECT_NAME}.service"; then
+    PID=$(systemctl show -p MainPID --value "tfgrid-ai-project@${PROJECT_NAME}.service")
+    MEMORY=$(systemctl show -p MemoryCurrent --value "tfgrid-ai-project@${PROJECT_NAME}.service")
+    MEMORY_MB=$((MEMORY / 1024 / 1024))
+    echo "🟢 Status: Running (PID: $PID, Memory: ${MEMORY_MB}MB)"
+else
+    echo "⭕ Status: Stopped"
+fi
+echo ""
 
 cd "$PROJECT_PATH"
 

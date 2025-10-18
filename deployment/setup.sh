@@ -90,6 +90,19 @@ echo "🔧 Setting up workspace permissions..."
 chown -R developer:developer /home/developer/code
 cp -r /home/developer/.qwen /root/ 2>/dev/null || echo "ℹ️  Qwen credentials not yet available (will be set up during login)"
 
+# Install systemd template service for per-project management
+echo "🔧 Installing systemd template service..."
+cp /tmp/app-source/deployment/tfgrid-ai-project@.service /etc/systemd/system/
+systemctl daemon-reload
+
+# Disable old single service if it exists
+if systemctl list-unit-files | grep -q "^tfgrid-ai-agent.service"; then
+    echo "🔧 Disabling old single-service architecture..."
+    systemctl stop tfgrid-ai-agent.service 2>/dev/null || true
+    systemctl disable tfgrid-ai-agent.service 2>/dev/null || true
+fi
+
 echo "✅ Setup complete"
 echo "👤 Developer user ready: /home/developer"
 echo "📁 Workspace: /home/developer/code"
+echo "🔧 Systemd template: tfgrid-ai-project@.service (per-project instances)"

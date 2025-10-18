@@ -1,5 +1,5 @@
 #!/bin/bash
-# logs-project.sh - View project logs
+# logs-project.sh - View project logs (systemd-aware)
 # Part of the AI-Agent framework
 
 set -e
@@ -10,11 +10,23 @@ source "$SCRIPT_DIR/common-project.sh"
 
 PROJECT_NAME="$1"
 LINES="${2:-50}"  # Default 50 lines
-FOLLOW="${3:-true}"  # Default follow mode
 
+# If no argument, try to get from context
 if [ -z "$PROJECT_NAME" ]; then
-    echo "Usage: $0 <project-name> [lines] [follow]"
-    exit 1
+    CONTEXT_FILE="$HOME/.config/tfgrid-compose/context.yaml"
+    
+    if [ -f "$CONTEXT_FILE" ]; then
+        PROJECT_NAME=$(grep "^active_project:" "$CONTEXT_FILE" 2>/dev/null | awk '{print $2}')
+    fi
+    
+    if [ -z "$PROJECT_NAME" ]; then
+        echo "❌ No project specified and no project selected"
+        echo ""
+        echo "Either:"
+        echo "  1. Run: tfgrid-compose select-project"
+        echo "  2. Or: tfgrid-compose logs <project-name>"
+        exit 1
+    fi
 fi
 
 # Find project in workspace
@@ -28,26 +40,14 @@ if [ -z "$PROJECT_PATH" ]; then
     exit 1
 fi
 
-cd "$PROJECT_PATH"
-
-# Check what log files exist
-OUTPUT_LOG="agent-output.log"
-ERROR_LOG="agent-errors.log"
-
-if [ ! -f "$OUTPUT_LOG" ] && [ ! -f "$ERROR_LOG" ]; then
-    echo "❌ No log files found for project '$PROJECT_NAME'"
-    echo "   (Project may not have been started yet)"
-    exit 1
-fi
-
 echo "📋 Viewing logs for: $PROJECT_NAME"
 echo "   Location: $PROJECT_PATH"
 echo ""
 
-# Check if project is running
-PROJECT_PID=$(pgrep -f "agent-loop.sh.*$PROJECT_NAME" 2>/dev/null || echo "")
-if [ -n "$PROJECT_PID" ]; then
-    echo "   Status: 🟢 Running (PID: $PROJECT_PID)"
+# Check if project is running via systemd
+if systemctl is-active --quiet "tfgrid-ai-project@${PROJECT_NAME}.service"; then
+    PID=$(systemctl show -p MainPID --value "tfgrid-ai-project@${PROJECT_NAME}.service")
+    echo "   Status: 🟢 Running (PID: $PID)"
 else
     echo "   Status: ⭕ Stopped"
 fi
@@ -56,25 +56,19 @@ echo "   Press Ctrl+C to exit"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 
-# Show last N lines and follow
-if [ "$FOLLOW" = "true" ]; then
-    # Follow mode (live tail)
-    if [ -f "$OUTPUT_LOG" ]; then
-        tail -f -n "$LINES" "$OUTPUT_LOG"
-    else
-        echo "⚠️  No output log found"
-    fi
+# Check what log files exist
+OUTPUT_LOG="$PROJECT_PATH/agent-output.log"
+ERROR_LOG="$PROJECT_PATH/agent-errors.log"
+
+# Follow mode (live tail) - use the project's log files
+if [ -f "$OUTPUT_LOG" ]; then
+    tail -f -n "$LINES" "$OUTPUT_LOG"
 else
-    # Static view
-    if [ -f "$OUTPUT_LOG" ]; then
-        echo "=== Output Log (last $LINES lines) ==="
-        tail -n "$LINES" "$OUTPUT_LOG"
-        echo ""
-    fi
-    
-    if [ -f "$ERROR_LOG" ] && [ -s "$ERROR_LOG" ]; then
-        echo "=== Error Log ==="
-        tail -n "$LINES" "$ERROR_LOG"
-        echo ""
-    fi
+    echo "⚠️  No output log found yet"
+    echo "   Waiting for logs to appear..."
+    # Wait for file to be created, then tail it
+    while [ ! -f "$OUTPUT_LOG" ]; do
+        sleep 1
+    done
+    tail -f -n "$LINES" "$OUTPUT_LOG"
 fi
