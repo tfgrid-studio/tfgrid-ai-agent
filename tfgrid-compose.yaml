@@ -74,17 +74,17 @@ commands:
     args: "[project-name]"
     
   run:
-    script: /opt/ai-agent/scripts/run-project.sh
+    script: /opt/ai-agent/scripts/interactive-wrapper.sh run
     description: Start agent loop for a project
     args: "[project-name]"
     
   stop:
-    script: /opt/ai-agent/scripts/stop-project.sh
+    script: /opt/ai-agent/scripts/interactive-wrapper.sh stop
     description: Stop agent loop for a project
     args: "[project-name]"
     
   monitor:
-    script: /opt/ai-agent/scripts/monitor-project.sh
+    script: /opt/ai-agent/scripts/interactive-wrapper.sh monitor
     description: Monitor project progress
     args: "[project-name]"
     
@@ -93,22 +93,22 @@ commands:
     description: Show status of all projects
     
   remove:
-    script: /opt/ai-agent/scripts/remove-project.sh
+    script: /opt/ai-agent/scripts/interactive-wrapper.sh remove
     description: Delete a project
     args: "[project-name]"
     
   logs:
-    script: /opt/ai-agent/scripts/logs-project.sh
+    script: /opt/ai-agent/scripts/interactive-wrapper.sh logs
     description: View project logs
     args: "[project-name]"
     
   summary:
-    script: /opt/ai-agent/scripts/summary-project.sh
+    script: /opt/ai-agent/scripts/interactive-wrapper.sh summary
     description: Show project summary
     args: "[project-name]"
     
   restart:
-    script: /opt/ai-agent/scripts/restart-project.sh
+    script: /opt/ai-agent/scripts/interactive-wrapper.sh restart
     description: Restart agent for a project
     args: "[project-name]"
     
@@ -117,7 +117,7 @@ commands:
     description: Stop all running projects
     
   edit:
-    script: /opt/ai-agent/scripts/edit-project.sh
+    script: /opt/ai-agent/scripts/interactive-wrapper.sh edit
     description: Edit project configuration
     args: "[project-name]"
     
