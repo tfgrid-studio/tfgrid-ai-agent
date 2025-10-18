@@ -125,9 +125,17 @@ git config --global init.defaultBranch main 2>/dev/null || true
 git init
 git checkout -b main 2>/dev/null || git checkout main 2>/dev/null || true
 
-# Configure git user - uses global git config (user should set this properly)
-GIT_USER_NAME=$(git config --global user.name 2>/dev/null || echo "")
-GIT_USER_EMAIL=$(git config --global user.email 2>/dev/null || echo "")
+# Configure git user - read from developer's global config if running as root
+# (create script may be called via SSH as root, but we want developer's config)
+if [ "$USER" = "root" ] || [ "$EUID" -eq 0 ]; then
+    # Running as root - read developer's git config
+    GIT_USER_NAME=$(su - developer -c "git config --global user.name" 2>/dev/null || echo "")
+    GIT_USER_EMAIL=$(su - developer -c "git config --global user.email" 2>/dev/null || echo "")
+else
+    # Running as developer or other user - read their config
+    GIT_USER_NAME=$(git config --global user.name 2>/dev/null || echo "")
+    GIT_USER_EMAIL=$(git config --global user.email 2>/dev/null || echo "")
+fi
 
 # In interactive mode, show git config status
 if [ "${NON_INTERACTIVE:-0}" != "1" ]; then
