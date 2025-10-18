@@ -68,6 +68,11 @@ chmod -R 755 /opt/ai-agent/scripts
 mkdir -p /var/log/ai-agent
 chown developer:developer /var/log/ai-agent
 
+# Fix workspace permissions and copy qwen credentials
+echo "🔧 Setting up workspace permissions..."
+chown -R developer:developer /home/developer/code
+cp -r /home/developer/.qwen /root/ 2>/dev/null || echo "ℹ️  Qwen credentials not yet available (will be set up during login)"
+
 echo "✅ Setup complete"
 echo "👤 Developer user ready: /home/developer"
 echo "📁 Workspace: /home/developer/code"

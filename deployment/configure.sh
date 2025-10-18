@@ -6,7 +6,7 @@ set -e
 
 echo "⚙️  Configuring tfgrid-ai-agent..."
 
-# Create systemd service
+# Create systemd service (disabled by default - projects run on-demand)
 echo "📝 Creating systemd service..."
 cat > /etc/systemd/system/tfgrid-ai-agent.service << 'EOF'
 [Unit]
@@ -15,11 +15,10 @@ After=network.target
 
 [Service]
 Type=simple
-User=root
-WorkingDirectory=/opt/ai-agent
-ExecStart=/opt/ai-agent/scripts/agent-loop.sh
-Restart=on-failure
-RestartSec=10
+User=developer
+WorkingDirectory=/home/developer
+ExecStart=/bin/bash -c "echo 'AI Agent service started - use tfgrid-compose commands to manage projects'"
+Restart=no
 StandardOutput=append:/var/log/ai-agent/output.log
 StandardError=append:/var/log/ai-agent/error.log
 
