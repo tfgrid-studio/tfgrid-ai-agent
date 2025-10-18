@@ -126,20 +126,30 @@ git checkout -b main 2>/dev/null || git checkout main 2>/dev/null || true
 GIT_USER_NAME=$(git config --global user.name 2>/dev/null || echo "")
 GIT_USER_EMAIL=$(git config --global user.email 2>/dev/null || echo "")
 
-# If no global config, warn and prompt (only in interactive mode)
-if [ -z "$GIT_USER_NAME" ] && [ "${NON_INTERACTIVE:-0}" != "1" ]; then
+# Always prompt for git config in interactive mode (good UX practice)
+if [ "${NON_INTERACTIVE:-0}" != "1" ]; then
     echo ""
-    echo "⚠️  No global git config found!"
-    echo "💡 Tip: Set it globally with:"
-    echo "   git config --global user.name \"Your Name\""
-    echo "   git config --global user.email \"your.email@example.com\""
-    echo ""
-    read -p "Enter your name (for git commits): " GIT_USER_NAME
-    read -p "Enter your email (for git commits): " GIT_USER_EMAIL
-    
+    echo "👤 Git Configuration:"
     if [ -n "$GIT_USER_NAME" ]; then
-        git config user.name "$GIT_USER_NAME"
-        git config user.email "$GIT_USER_EMAIL"
+        echo "   Current: $GIT_USER_NAME <$GIT_USER_EMAIL>"
+        read -p "Use existing config? (Y/n): " USE_EXISTING
+        USE_EXISTING=${USE_EXISTING:-Y}
+        if [[ ! "$USE_EXISTING" =~ ^[Yy]$ ]]; then
+            GIT_USER_NAME=""
+            GIT_USER_EMAIL=""
+        fi
+    fi
+
+    if [ -z "$GIT_USER_NAME" ]; then
+        echo "   Git config needed for commits:"
+        read -p "   Enter your name: " GIT_USER_NAME
+        read -p "   Enter your email: " GIT_USER_EMAIL
+
+        if [ -n "$GIT_USER_NAME" ] && [ -n "$GIT_USER_EMAIL" ]; then
+            git config user.name "$GIT_USER_NAME"
+            git config user.email "$GIT_USER_EMAIL"
+            echo "   ✅ Git config set for this project"
+        fi
     fi
 elif [ -z "$GIT_USER_NAME" ]; then
     # Non-interactive mode: use default

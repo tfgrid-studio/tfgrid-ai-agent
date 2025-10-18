@@ -41,7 +41,7 @@ mkdir -p ~/code/gitlab.com
 mkdir -p ~/.ssh
 chmod 700 ~/.ssh
 
-# Configure git
+# Configure git (will be overridden by user config if they set it)
 git config --global user.name "AI Agent"
 git config --global user.email "agent@localhost"
 git config --global init.defaultBranch main
