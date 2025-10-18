@@ -124,3 +124,7 @@ commands:
   login:
     script: /opt/ai-agent/scripts/login.sh
     description: Authenticate with Qwen (OAuth)
+    
+  whoami:
+    script: /opt/ai-agent/scripts/whoami.sh
+    description: Check Qwen authentication status
