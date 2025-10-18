@@ -261,5 +261,5 @@ Apache 2.0
 
 **Part of:** [TFGrid Studio](https://github.com/tfgrid-studio)  
 **Status:** ✅ Production Ready  
-**Version:** 2.0.0  
-**Compatible with:** tfgrid-compose v2.0.0 (all patterns)
+**Version:** 0.3.0  
+**Compatible with:** tfgrid-compose v0.11.0+ (all patterns)
