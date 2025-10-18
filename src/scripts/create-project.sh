@@ -536,6 +536,12 @@ echo "🔧 Initializing git repository..."
 git add .
 git commit -m "Initial commit: Project '$PROJECT_NAME' created with AI-Agent"
 
+# Fix ownership if running as root (ensure developer user can access everything)
+if [ "$USER" = "root" ] || [ "$EUID" -eq 0 ]; then
+    echo "🔧 Setting proper ownership..."
+    chown -R developer:developer "$PROJECTS_DIR/$PROJECT_NAME"
+fi
+
 echo ""
 echo "✅ Project '$PROJECT_NAME' created successfully!"
 echo ""
