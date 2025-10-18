@@ -161,6 +161,10 @@ if [ "${NON_INTERACTIVE:-0}" != "1" ]; then
                 git config user.email "$GIT_USER_EMAIL"
                 echo "   ✅ Project-specific git config set"
             fi
+        else
+            # User wants to use existing config - set it locally in this repo
+            git config user.name "$GIT_USER_NAME"
+            git config user.email "$GIT_USER_EMAIL"
         fi
     else
         # Git NOT configured - prompt for it
