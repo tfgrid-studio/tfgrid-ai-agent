@@ -48,7 +48,7 @@ su - developer -c 'bash /tmp/qwen-auth.sh' &
 
 # Wait for OAuth URL to appear
 echo "Starting OAuth flow..."
-sleep 5
+sleep 8
 
 # Display the OAuth output (static, no flickering)
 echo ""
@@ -56,7 +56,32 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 echo "📋 OAuth URL (copy and open in your browser):"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
-su - developer -c 'cat /tmp/qwen_oauth.log 2>/dev/null | grep -E "https://.*authorize" || echo "⚠️  Waiting for OAuth URL..."'
+
+# Show the full log for debugging
+if su - developer -c 'test -f /tmp/qwen_oauth.log' 2>/dev/null; then
+    # Try to extract just the URL
+    URL=$(su - developer -c 'cat /tmp/qwen_oauth.log 2>/dev/null | grep -oE "https://[^[:space:]]+" | head -1')
+    if [ -n "$URL" ]; then
+        echo "$URL"
+    else
+        # Show full log if URL extraction failed
+        echo "DEBUG: Full log output:"
+        su - developer -c 'cat /tmp/qwen_oauth.log 2>/dev/null | head -50'
+    fi
+else
+    echo "⚠️  Log file not created. Checking if expect is installed..."
+    if ! command -v expect &> /dev/null; then
+        echo "❌ 'expect' is not installed on the VM!"
+        echo ""
+        echo "Installing expect..."
+        apt-get update -qq && apt-get install -y expect
+        echo "✅ expect installed. Please run 'tfgrid-compose login' again."
+        exit 1
+    else
+        echo "⚠️  OAuth flow didn't start. Check /tmp/qwen_oauth.log on VM for details."
+    fi
+fi
+
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
