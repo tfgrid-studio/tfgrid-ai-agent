@@ -142,8 +142,12 @@ if [ "${NON_INTERACTIVE:-0}" != "1" ]; then
     if [ -n "$GIT_USER_NAME" ] && [ -n "$GIT_USER_EMAIL" ]; then
         # Git is configured - show and allow override
         echo ""
-        echo "👤 Git Identity: $GIT_USER_NAME <$GIT_USER_EMAIL> ✅"
-        read -p "   Press Enter to continue, or type 'override' to change: " RESPONSE
+        echo "👤 Git Configuration:"
+        echo "   Name:  $GIT_USER_NAME"
+        echo "   Email: $GIT_USER_EMAIL"
+        echo "   ✅ Loaded from global config"
+        echo ""
+        read -p "Press Enter to continue, or type 'override' to change: " RESPONSE
         echo ""
         
         if [[ "$RESPONSE" == "override" ]]; then
