@@ -67,14 +67,14 @@ echo ""
 
 # Show the full log for debugging
 if su - developer -c 'test -f /tmp/qwen_oauth.log' 2>/dev/null; then
-    # Try to extract just the URL
-    URL=$(su - developer -c 'cat /tmp/qwen_oauth.log 2>/dev/null | grep -oE "https://[^[:space:]]+" | head -1')
+    # Try to extract just the OAuth URL (must contain 'authorize')
+    URL=$(su - developer -c 'cat /tmp/qwen_oauth.log 2>/dev/null | grep -oE "https://[^[:space:]]*authorize[^[:space:]]*" | head -1')
     if [ -n "$URL" ]; then
         echo "$URL"
     else
         # Show full log if URL extraction failed
-        echo "DEBUG: Full log output:"
-        su - developer -c 'cat /tmp/qwen_oauth.log 2>/dev/null | head -50'
+        echo "DEBUG: Searching for authorize URL in log:"
+        su - developer -c 'cat /tmp/qwen_oauth.log 2>/dev/null | grep -i authorize | head -20'
     fi
 else
     echo "⚠️  Log file not created. Checking if expect is installed..."
