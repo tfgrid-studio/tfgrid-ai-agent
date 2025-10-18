@@ -30,8 +30,8 @@ fi
 echo "🚀 Starting AI agent loop for project: $PROJECT_NAME"
 echo "=============================================="
 
-# Start this AI agent loop in background, passing the project directory
-nohup bash "$(dirname "$0")/agent-loop.sh" "$PROJECT_PATH" > "$PROJECT_PATH/agent-output.log" 2> "$PROJECT_PATH/agent-errors.log" &
+# Start this AI agent loop in background as developer user, passing the project directory
+nohup su - developer -c "bash /opt/ai-agent/scripts/agent-loop.sh '$PROJECT_PATH'" > "$PROJECT_PATH/agent-output.log" 2> "$PROJECT_PATH/agent-errors.log" &
 AGENT_PID=$!
 
 echo "✅ AI agent loop started with PID: $AGENT_PID"

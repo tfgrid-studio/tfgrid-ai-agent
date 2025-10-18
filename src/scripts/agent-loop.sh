@@ -60,14 +60,14 @@ while true; do
     TIME_MGMT_FILE="$AGENT_DIR/time_management_instructions.md"
     if [ -f "$TIME_MGMT_FILE" ]; then
         # Concatenate time management instructions with user prompt
-        if qwen -p "$(cat "$TIME_MGMT_FILE" "$PROMPT_FILE")" --approval-mode yolo --sandbox false 2>>"$ERROR_LOG" >> "$LOG_FILE"; then
+        if cat "$TIME_MGMT_FILE" "$PROMPT_FILE" | qwen --approval-mode yolo --sandbox false 2>>"$ERROR_LOG" >> "$LOG_FILE"; then
             QWEN_SUCCESS=true
         else
             QWEN_SUCCESS=false
         fi
     else
         # No time management - just use prompt
-        if qwen -p "$(cat "$PROMPT_FILE")" --approval-mode yolo --sandbox false 2>>"$ERROR_LOG" >> "$LOG_FILE"; then
+        if cat "$PROMPT_FILE" | qwen --approval-mode yolo --sandbox false 2>>"$ERROR_LOG" >> "$LOG_FILE"; then
             QWEN_SUCCESS=true
         else
             QWEN_SUCCESS=false
