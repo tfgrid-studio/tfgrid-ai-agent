@@ -147,26 +147,40 @@ if [ "${NON_INTERACTIVE:-0}" != "1" ]; then
         echo "   Email: $GIT_USER_EMAIL"
         echo "   ✅ Loaded from global config"
         echo ""
-        read -p "Press Enter to continue, or type 'override' to change: " RESPONSE
-        echo ""
         
-        if [[ "$RESPONSE" == "override" ]]; then
-            # User wants to override
-            echo "Enter new git identity:"
-            read -p "   Name: " GIT_USER_NAME
-            read -p "   Email: " GIT_USER_EMAIL
-            echo ""
+        # Loop until valid input
+        while true; do
+            read -p "Press Enter to continue, or type 'override' to change: " RESPONSE
             
-            if [ -n "$GIT_USER_NAME" ] && [ -n "$GIT_USER_EMAIL" ]; then
+            if [ -z "$RESPONSE" ]; then
+                # User pressed Enter - use existing config
+                echo ""
                 git config user.name "$GIT_USER_NAME"
                 git config user.email "$GIT_USER_EMAIL"
-                echo "   ✅ Using: $GIT_USER_NAME <$GIT_USER_EMAIL>"
+                break
+            elif [[ "$RESPONSE" == "override" ]]; then
+                # User wants to override
+                echo ""
+                echo "Enter new git identity:"
+                read -p "   Name: " GIT_USER_NAME
+                read -p "   Email: " GIT_USER_EMAIL
+                echo ""
+                
+                if [ -n "$GIT_USER_NAME" ] && [ -n "$GIT_USER_EMAIL" ]; then
+                    git config user.name "$GIT_USER_NAME"
+                    git config user.email "$GIT_USER_EMAIL"
+                    echo "   ✅ Using: $GIT_USER_NAME <$GIT_USER_EMAIL>"
+                    echo ""
+                fi
+                break
+            else
+                # Invalid input - show error and re-ask
+                echo ""
+                echo "❌ Invalid input: '$RESPONSE'"
+                echo "   Please press Enter to continue, or type 'override' to change"
+                echo ""
             fi
-        else
-            # User pressed Enter or typed anything else - use existing
-            git config user.name "$GIT_USER_NAME"
-            git config user.email "$GIT_USER_EMAIL"
-        fi
+        done
     else
         # Git NOT configured - prompt for it
         echo ""
