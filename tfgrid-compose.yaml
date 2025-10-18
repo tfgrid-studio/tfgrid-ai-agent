@@ -121,5 +121,6 @@ commands:
     description: Edit project configuration
     args: "[project-name]"
     
-  # Note: Additional commands like 'version' and 'login' can be added
-  # once their corresponding scripts are implemented
+  login:
+    script: /opt/ai-agent/scripts/login.sh
+    description: Authenticate with Qwen (OAuth)
