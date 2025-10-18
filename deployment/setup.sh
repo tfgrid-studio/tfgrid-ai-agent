@@ -31,9 +31,24 @@ fi
 # Add developer to sudo group (optional, for admin tasks)
 usermod -aG sudo developer 2>/dev/null || true
 
+# Configure git identity from tfgrid-compose credentials
+echo "🔧 Configuring git identity..."
+if [ -n "$TFGRID_GIT_NAME" ] && [ -n "$TFGRID_GIT_EMAIL" ]; then
+    echo "  Using credentials from tfgrid-compose login"
+    GIT_NAME="$TFGRID_GIT_NAME"
+    GIT_EMAIL="$TFGRID_GIT_EMAIL"
+    echo "  Name:  $GIT_NAME"
+    echo "  Email: $GIT_EMAIL"
+else
+    echo "  No git credentials provided - using defaults"
+    echo "  (Run 'tfgrid-compose login' to add your git identity)"
+    GIT_NAME="AI Agent"
+    GIT_EMAIL="agent@localhost"
+fi
+
 # Create workspace directories as developer
 echo "📁 Creating workspace..."
-su - developer <<'EOF'
+su - developer <<EOF
 mkdir -p ~/code/tfgrid-ai-agent-projects
 mkdir -p ~/code/github.com
 mkdir -p ~/code/git.ourworld.tf
@@ -41,12 +56,13 @@ mkdir -p ~/code/gitlab.com
 mkdir -p ~/.ssh
 chmod 700 ~/.ssh
 
-# Configure git (will be overridden by user config if they set it)
-git config --global user.name "AI Agent"
-git config --global user.email "agent@localhost"
+# Configure git with user's identity
+git config --global user.name "$GIT_NAME"
+git config --global user.email "$GIT_EMAIL"
 git config --global init.defaultBranch main
 
 echo "✅ Workspace created at ~/code"
+echo "✅ Git configured: $GIT_NAME <$GIT_EMAIL>"
 EOF
 
 # Create agent scripts directory (system-level for management scripts)
