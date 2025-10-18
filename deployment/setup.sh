@@ -34,6 +34,7 @@ usermod -aG sudo developer 2>/dev/null || true
 # Create workspace directories as developer
 echo "📁 Creating workspace..."
 su - developer <<'EOF'
+mkdir -p ~/code/tfgrid-ai-agent-projects
 mkdir -p ~/code/github.com
 mkdir -p ~/code/git.ourworld.tf
 mkdir -p ~/code/gitlab.com

@@ -62,15 +62,8 @@ fi
 # Determine workspace base directory
 WORKSPACE_BASE="${PROJECT_WORKSPACE:-/home/developer/code}"
 
-# Detect Git source from current directory or use default
-if [[ "$PWD" =~ /code/([^/]+)/([^/]+) ]]; then
-    GIT_SOURCE="${BASH_REMATCH[1]}"  # e.g., github.com
-    GIT_ORG="${BASH_REMATCH[2]}"     # e.g., my-org
-    PROJECTS_DIR="$WORKSPACE_BASE/$GIT_SOURCE/$GIT_ORG"
-else
-    # Default to github.com/projects if not in a recognized path
-    PROJECTS_DIR="$WORKSPACE_BASE/github.com/projects"
-fi
+# Use tfgrid-ai-agent-projects directory for all AI agent projects
+PROJECTS_DIR="$WORKSPACE_BASE/tfgrid-ai-agent-projects"
 
 # Create projects directory if it doesn't exist
 mkdir -p "$PROJECTS_DIR"
