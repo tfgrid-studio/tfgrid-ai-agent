@@ -510,11 +510,16 @@ This project was created with AI-Agent.
 
 The project is ready to run! The prompt has been configured in \`prompt.md\`.
 
-To start this AI agent loop:
+To start this AI agent:
 
 \`\`\`bash
-# From the ai-agent directory
-make run
+tfgrid-compose run $PROJECT_NAME
+\`\`\`
+
+To monitor progress:
+
+\`\`\`bash
+tfgrid-compose monitor $PROJECT_NAME
 \`\`\`
 
 ## Current Status
@@ -552,9 +557,18 @@ if [ "${SKIP_AUTOSTART:-0}" != "1" ] && [ "${NON_INTERACTIVE:-0}" != "1" ]; then
         "$(dirname "${BASH_SOURCE[0]}")/run-project.sh" "$PROJECT_NAME"
     else
         echo "Next steps:"
-        echo "1. cd ../$PROJECT_NAME"
-        echo "2. Review/modify prompt.md if needed"
-        echo "3. cd ../ai-agent && make run PROJECT_NAME=$PROJECT_NAME"
-        echo "4. Or edit the project: make edit PROJECT_NAME=$PROJECT_NAME"
+        echo ""
+        echo "To start the AI agent for this project:"
+        echo "  tfgrid-compose run $PROJECT_NAME"
+        echo ""
+        echo "To monitor progress:"
+        echo "  tfgrid-compose monitor $PROJECT_NAME"
+        echo ""
+        echo "To view logs:"
+        echo "  tfgrid-compose logs $PROJECT_NAME"
+        echo ""
+        echo "To stop the AI agent:"
+        echo "  tfgrid-compose stop $PROJECT_NAME"
+        echo ""
     fi
 fi
