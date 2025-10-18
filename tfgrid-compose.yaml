@@ -121,10 +121,5 @@ commands:
     description: Edit project configuration
     args: "[project-name]"
     
-  version:
-    script: /opt/ai-agent/scripts/version.sh
-    description: Show agent version and status
-    
-  login:
-    script: /opt/ai-agent/scripts/login.sh
-    description: Configure git credentials for projects
+  # Note: Additional commands like 'version' and 'login' can be added
+  # once their corresponding scripts are implemented
