@@ -139,43 +139,42 @@ fi
 
 # In interactive mode, show git config status
 if [ "${NON_INTERACTIVE:-0}" != "1" ]; then
-    echo ""
-    echo "👤 Git Configuration:"
-    
     if [ -n "$GIT_USER_NAME" ] && [ -n "$GIT_USER_EMAIL" ]; then
-        # Git is configured - use it automatically with option to override
-        echo "   Using: $GIT_USER_NAME <$GIT_USER_EMAIL>"
-        echo "   ✅ Git identity loaded from global config"
+        # Git is configured - show and allow override
+        echo ""
+        echo "👤 Git Identity: $GIT_USER_NAME <$GIT_USER_EMAIL> ✅"
+        read -p "   Press Enter to continue, or type 'override' to change: " RESPONSE
+        echo ""
         
-        # Only ask if user wants to override (uncommon case)
-        read -p "   Override for this project only? (y/N): " OVERRIDE
-        OVERRIDE=${OVERRIDE:-N}
-        
-        if [[ "$OVERRIDE" =~ ^[Yy]$ ]]; then
-            echo "   Enter project-specific git config:"
+        if [[ "$RESPONSE" == "override" ]]; then
+            # User wants to override
+            echo "Enter new git identity:"
             read -p "   Name: " GIT_USER_NAME
             read -p "   Email: " GIT_USER_EMAIL
+            echo ""
             
             if [ -n "$GIT_USER_NAME" ] && [ -n "$GIT_USER_EMAIL" ]; then
                 git config user.name "$GIT_USER_NAME"
                 git config user.email "$GIT_USER_EMAIL"
-                echo "   ✅ Project-specific git config set"
+                echo "   ✅ Using: $GIT_USER_NAME <$GIT_USER_EMAIL>"
             fi
         else
-            # User wants to use existing config - set it locally in this repo
+            # User pressed Enter or typed anything else - use existing
             git config user.name "$GIT_USER_NAME"
             git config user.email "$GIT_USER_EMAIL"
         fi
     else
         # Git NOT configured - prompt for it
+        echo ""
+        echo "👤 Git Configuration:"
         echo "   ⚠️  No global git config found"
-        echo "   Tip: Set it globally with 'tfgrid-compose update-git-config tfgrid-ai-agent'"
+        echo "   Tip: Set it with 'tfgrid-compose update-git-config tfgrid-ai-agent'"
         echo ""
         read -p "   Enter your name: " GIT_USER_NAME
         read -p "   Enter your email: " GIT_USER_EMAIL
 
         if [ -n "$GIT_USER_NAME" ] && [ -n "$GIT_USER_EMAIL" ]; then
-            # Set for this project only
+            # Set for this project
             git config user.name "$GIT_USER_NAME"
             git config user.email "$GIT_USER_EMAIL"
             echo "   ✅ Git config set for this project"
