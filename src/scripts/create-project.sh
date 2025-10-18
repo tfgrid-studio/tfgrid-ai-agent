@@ -129,33 +129,48 @@ git checkout -b main 2>/dev/null || git checkout main 2>/dev/null || true
 GIT_USER_NAME=$(git config --global user.name 2>/dev/null || echo "")
 GIT_USER_EMAIL=$(git config --global user.email 2>/dev/null || echo "")
 
-# Always prompt for git config in interactive mode (good UX practice)
+# In interactive mode, show git config status
 if [ "${NON_INTERACTIVE:-0}" != "1" ]; then
     echo ""
     echo "👤 Git Configuration:"
-    if [ -n "$GIT_USER_NAME" ]; then
-        echo "   Current: $GIT_USER_NAME <$GIT_USER_EMAIL>"
-        read -p "Use existing config? (Y/n): " USE_EXISTING
-        USE_EXISTING=${USE_EXISTING:-Y}
-        if [[ ! "$USE_EXISTING" =~ ^[Yy]$ ]]; then
-            GIT_USER_NAME=""
-            GIT_USER_EMAIL=""
+    
+    if [ -n "$GIT_USER_NAME" ] && [ -n "$GIT_USER_EMAIL" ]; then
+        # Git is configured - use it automatically with option to override
+        echo "   Using: $GIT_USER_NAME <$GIT_USER_EMAIL>"
+        echo "   ✅ Git identity loaded from global config"
+        
+        # Only ask if user wants to override (uncommon case)
+        read -p "   Override for this project only? (y/N): " OVERRIDE
+        OVERRIDE=${OVERRIDE:-N}
+        
+        if [[ "$OVERRIDE" =~ ^[Yy]$ ]]; then
+            echo "   Enter project-specific git config:"
+            read -p "   Name: " GIT_USER_NAME
+            read -p "   Email: " GIT_USER_EMAIL
+            
+            if [ -n "$GIT_USER_NAME" ] && [ -n "$GIT_USER_EMAIL" ]; then
+                git config user.name "$GIT_USER_NAME"
+                git config user.email "$GIT_USER_EMAIL"
+                echo "   ✅ Project-specific git config set"
+            fi
         fi
-    fi
-
-    if [ -z "$GIT_USER_NAME" ]; then
-        echo "   Git config needed for commits:"
+    else
+        # Git NOT configured - prompt for it
+        echo "   ⚠️  No global git config found"
+        echo "   Tip: Set it globally with 'tfgrid-compose update-git-config tfgrid-ai-agent'"
+        echo ""
         read -p "   Enter your name: " GIT_USER_NAME
         read -p "   Enter your email: " GIT_USER_EMAIL
 
         if [ -n "$GIT_USER_NAME" ] && [ -n "$GIT_USER_EMAIL" ]; then
+            # Set for this project only
             git config user.name "$GIT_USER_NAME"
             git config user.email "$GIT_USER_EMAIL"
             echo "   ✅ Git config set for this project"
         fi
     fi
 elif [ -z "$GIT_USER_NAME" ]; then
-    # Non-interactive mode: use default
+    # Non-interactive mode: use default if not configured
     git config user.name "AI Agent"
     git config user.email "ai-agent@localhost"
 fi
