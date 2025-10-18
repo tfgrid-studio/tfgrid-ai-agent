@@ -65,3 +65,66 @@ logging:
 status:
   method: systemd
   service: tfgrid-ai-agent
+
+# App-specific commands (v0.11.0+)
+commands:
+  create:
+    script: /opt/ai-agent/scripts/create-project.sh
+    description: Create a new AI coding project
+    args: "[project-name]"
+    
+  run:
+    script: /opt/ai-agent/scripts/run-project.sh
+    description: Start agent loop for a project
+    args: "[project-name]"
+    
+  stop:
+    script: /opt/ai-agent/scripts/stop-project.sh
+    description: Stop agent loop for a project
+    args: "[project-name]"
+    
+  monitor:
+    script: /opt/ai-agent/scripts/monitor-project.sh
+    description: Monitor project progress
+    args: "[project-name]"
+    
+  projects:
+    script: /opt/ai-agent/scripts/status-projects.sh
+    description: Show status of all projects
+    
+  remove:
+    script: /opt/ai-agent/scripts/remove-project.sh
+    description: Delete a project
+    args: "[project-name]"
+    
+  logs:
+    script: /opt/ai-agent/scripts/logs-project.sh
+    description: View project logs
+    args: "[project-name]"
+    
+  summary:
+    script: /opt/ai-agent/scripts/summary-project.sh
+    description: Show project summary
+    args: "[project-name]"
+    
+  restart:
+    script: /opt/ai-agent/scripts/restart-project.sh
+    description: Restart agent for a project
+    args: "[project-name]"
+    
+  stopall:
+    script: /opt/ai-agent/scripts/stopall-projects.sh
+    description: Stop all running projects
+    
+  edit:
+    script: /opt/ai-agent/scripts/edit-project.sh
+    description: Edit project configuration
+    args: "[project-name]"
+    
+  version:
+    script: /opt/ai-agent/scripts/version.sh
+    description: Show agent version and status
+    
+  login:
+    script: /opt/ai-agent/scripts/login.sh
+    description: Configure git credentials for projects
