@@ -58,6 +58,10 @@ fi
 echo "✅ Qwen authenticated"
 echo ""
 
+# Ensure systemd knows about the service (safe to reload here - not during deployment)
+echo "🔄 Reloading systemd services..."
+systemctl daemon-reload
+
 # Start systemd service for this project
 systemctl start "tfgrid-ai-project@${PROJECT_NAME}.service"
 
