@@ -62,7 +62,8 @@ echo ""
 # systemd was already reloaded during deployment, so the template is available
 echo "🚀 Starting AI agent loop for project: $PROJECT_NAME"
 
-systemctl start "tfgrid-ai-project@${PROJECT_NAME}.service"
+# Use --no-block to avoid SSH timeout if service takes time to start
+systemctl start --no-block "tfgrid-ai-project@${PROJECT_NAME}.service"
 
 # Wait a moment and check if started successfully
 sleep 1
