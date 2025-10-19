@@ -45,7 +45,7 @@ echo ""
 
 # Check if qwen is authenticated first
 echo "🔍 Checking Qwen authentication..."
-if [ ! -f "$HOME/.qwen/config.yaml" ] && [ ! -f "$HOME/.config/qwen/config.yaml" ]; then
+if [ ! -f "$HOME/.qwen/settings.json" ]; then
     echo ""
     echo "⚠️  Qwen is not authenticated!"
     echo ""
