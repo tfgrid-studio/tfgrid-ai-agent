@@ -6,8 +6,8 @@ set -e
 
 echo "⚙️  Configuring tfgrid-ai-agent..."
 
-# Create systemd service (disabled by default - projects run on-demand)
-echo "📝 Creating systemd service..."
+# Create systemd service file (but don't touch systemd during deployment)
+echo "📝 Creating systemd service file..."
 cat > /etc/systemd/system/tfgrid-ai-agent.service << 'EOF'
 [Unit]
 Description=TFGrid AI Agent Service
@@ -26,13 +26,8 @@ StandardError=append:/var/log/ai-agent/error.log
 WantedBy=multi-user.target
 EOF
 
-# Reload systemd
-echo "🔄 Reloading systemd..."
-systemctl daemon-reload
-
-# Enable and start service
-echo "▶️  Starting service..."
-systemctl enable tfgrid-ai-agent
-systemctl start tfgrid-ai-agent
+# Don't reload/enable/start systemd during deployment to avoid SSH disruption
+# Service will be started on-demand when user runs commands
 
 echo "✅ Configuration complete"
+echo "ℹ️  Systemd service created (not started - will start on first use)"
