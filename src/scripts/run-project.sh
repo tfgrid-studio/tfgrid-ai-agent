@@ -58,28 +58,30 @@ fi
 echo "✅ Qwen authenticated"
 echo ""
 
-# Start the systemd service using the template
-# systemd was already reloaded during deployment, so the template is available
+# Start the agent loop directly in background (avoid systemctl to prevent SSH issues)
 echo "🚀 Starting AI agent loop for project: $PROJECT_NAME"
 
-# Use --no-block to avoid SSH timeout if service takes time to start
-systemctl start --no-block "tfgrid-ai-project@${PROJECT_NAME}.service"
+# Start in background with nohup to survive SSH disconnection
+cd "$PROJECT_PATH"
+nohup /opt/ai-agent/scripts/agent-loop.sh "$PROJECT_PATH" > agent-output.log 2> agent-errors.log &
+AGENT_PID=$!
 
-# Wait a moment and check if started successfully
+# Save PID for later management
+echo "$AGENT_PID" > "$PROJECT_PATH/.agent/pid"
+
+# Wait a moment to check if it started successfully
 sleep 1
-if systemctl is-active --quiet "tfgrid-ai-project@${PROJECT_NAME}.service"; then
-    PID=$(systemctl show -p MainPID --value "tfgrid-ai-project@${PROJECT_NAME}.service")
-    echo "✅ AI agent loop started with PID: $PID"
+if kill -0 "$AGENT_PID" 2>/dev/null; then
+    echo "✅ AI agent loop started with PID: $AGENT_PID"
     echo "📝 Logs are being written to:"
     echo "    - ${PROJECT_PATH}/agent-output.log"
     echo "    - ${PROJECT_PATH}/agent-errors.log"
     echo ""
-    echo "🛑 To stop: systemctl stop tfgrid-ai-project@${PROJECT_NAME}.service"
-    echo "📊 To monitor: journalctl -u tfgrid-ai-project@${PROJECT_NAME}.service -f"
+    echo "🛑 To stop: kill $AGENT_PID"
+    echo "📊 To monitor: tail -f ${PROJECT_PATH}/agent-output.log"
 else
-    echo "❌ Failed to start project: $PROJECT_NAME"
+    echo "❌ Failed to start agent loop"
     echo ""
-    echo "Recent logs:"
-    journalctl -u "tfgrid-ai-project@${PROJECT_NAME}.service" -n 20 --no-pager
+    echo "Check logs at: ${PROJECT_PATH}/agent-errors.log"
     exit 1
 fi
