@@ -8,7 +8,7 @@ echo "🚀 Setting up tfgrid-ai-agent..."
 
 # Install Node.js
 echo "📦 Installing Node.js..."
-curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
+curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
 apt-get install -y nodejs
 
 # Install expect for OAuth automation
@@ -92,7 +92,7 @@ cp -r /home/developer/.qwen /root/ 2>/dev/null || echo "ℹ️  Qwen credentials
 
 # Install systemd template service for per-project management
 echo "🔧 Installing systemd template service..."
-cp /tmp/app-source/deployment/tfgrid-ai-project@.service /etc/systemd/system/
+cp /tmp/app-deployment/tfgrid-ai-project@.service /etc/systemd/system/
 systemctl daemon-reload
 
 # Disable old single service if it exists
