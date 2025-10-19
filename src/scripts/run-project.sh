@@ -41,6 +41,22 @@ fi
 
 echo "🚀 Starting AI agent loop for project: $PROJECT_NAME"
 echo "=============================================="
+echo ""
+
+# Check if qwen is authenticated first
+echo "🔍 Checking Qwen authentication..."
+if [ ! -f "$HOME/.qwen/config.yaml" ] && [ ! -f "$HOME/.config/qwen/config.yaml" ]; then
+    echo ""
+    echo "⚠️  Qwen is not authenticated!"
+    echo ""
+    echo "Please authenticate first by running:"
+    echo "  tfgrid-compose login"
+    echo ""
+    exit 1
+fi
+
+echo "✅ Qwen authenticated"
+echo ""
 
 # Start systemd service for this project
 systemctl start "tfgrid-ai-project@${PROJECT_NAME}.service"

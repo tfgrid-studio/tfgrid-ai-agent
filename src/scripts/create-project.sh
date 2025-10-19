@@ -557,6 +557,23 @@ if [ "${SKIP_AUTOSTART:-0}" != "1" ] && [ "${NON_INTERACTIVE:-0}" != "1" ]; then
     echo ""
 
     if [[ "$START_NOW" =~ ^[Yy]$ ]]; then
+        # Check if qwen is authenticated first
+        echo "🔍 Checking Qwen authentication..."
+        if [ ! -f "$HOME/.qwen/config.yaml" ] && [ ! -f "$HOME/.config/qwen/config.yaml" ]; then
+            echo ""
+            echo "⚠️  Qwen is not authenticated!"
+            echo ""
+            echo "Please authenticate first by running:"
+            echo "  tfgrid-compose login"
+            echo ""
+            echo "Then start your project with:"
+            echo "  tfgrid-compose run $PROJECT_NAME"
+            echo ""
+            exit 0
+        fi
+        
+        echo "✅ Qwen authenticated"
+        echo ""
         echo "Starting AI agent for project '$PROJECT_NAME'..."
         echo ""
         # Use the run-project.sh script directly
