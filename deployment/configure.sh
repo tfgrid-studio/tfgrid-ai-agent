@@ -26,12 +26,11 @@ StandardError=append:/var/log/ai-agent/error.log
 WantedBy=multi-user.target
 EOF
 
-# Mark that systemd needs to be reloaded on first use
-# We can't run daemon-reload here because it might disrupt the Ansible SSH session
-touch /tmp/.tfgrid-systemd-needs-reload
+# Reload systemd to recognize new service files
+# This ONLY reloads unit files - doesn't start/stop/restart any services
+echo "🔄 Reloading systemd daemon..."
+systemctl daemon-reload
 
-# Don't enable/start the service automatically
-# Service will be started on-demand when user runs commands
-
+# Verification: systemd now knows about our template service
 echo "✅ Configuration complete"
-echo "ℹ️  Systemd service configured (daemon-reload will happen on first project start)"
+echo "ℹ️  Systemd service template installed and loaded"

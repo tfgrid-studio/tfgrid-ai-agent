@@ -58,31 +58,27 @@ fi
 echo "✅ Qwen authenticated"
 echo ""
 
-# Use systemd-run to start the project (doesn't require daemon-reload!)
-# This creates a transient service unit on-the-fly
-echo "🚀 Starting agent loop..."
-systemd-run --unit="tfgrid-ai-project-${PROJECT_NAME}" \
-    --working-directory="$PROJECT_PATH" \
-    --property="User=developer" \
-    --property="Group=developer" \
-    --property="Restart=on-failure" \
-    --property="RestartSec=10" \
-    --property="StandardOutput=append:${PROJECT_PATH}/agent-output.log" \
-    --property="StandardError=append:${PROJECT_PATH}/agent-errors.log" \
-    /opt/ai-agent/scripts/agent-loop.sh "$PROJECT_PATH"
+# Start the systemd service using the template
+# systemd was already reloaded during deployment, so the template is available
+echo "🚀 Starting AI agent loop for project: $PROJECT_NAME"
+
+systemctl start "tfgrid-ai-project@${PROJECT_NAME}.service"
 
 # Wait a moment and check if started successfully
 sleep 1
-UNIT_NAME="tfgrid-ai-project-${PROJECT_NAME}.service"
-if systemctl is-active --quiet "$UNIT_NAME"; then
-    PID=$(systemctl show -p MainPID --value "$UNIT_NAME")
+if systemctl is-active --quiet "tfgrid-ai-project@${PROJECT_NAME}.service"; then
+    PID=$(systemctl show -p MainPID --value "tfgrid-ai-project@${PROJECT_NAME}.service")
     echo "✅ AI agent loop started with PID: $PID"
-    echo "📝 Logs are being written to agent-output.log and agent-errors.log"
-    echo "🛑 To stop: systemctl stop $UNIT_NAME"
+    echo "📝 Logs are being written to:"
+    echo "    - ${PROJECT_PATH}/agent-output.log"
+    echo "    - ${PROJECT_PATH}/agent-errors.log"
+    echo ""
+    echo "🛑 To stop: systemctl stop tfgrid-ai-project@${PROJECT_NAME}.service"
+    echo "📊 To monitor: journalctl -u tfgrid-ai-project@${PROJECT_NAME}.service -f"
 else
     echo "❌ Failed to start project: $PROJECT_NAME"
     echo ""
     echo "Recent logs:"
-    journalctl -u "$UNIT_NAME" -n 20 --no-pager
+    journalctl -u "tfgrid-ai-project@${PROJECT_NAME}.service" -n 20 --no-pager
     exit 1
 fi
