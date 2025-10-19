@@ -58,24 +58,31 @@ fi
 echo "✅ Qwen authenticated"
 echo ""
 
-# Ensure systemd knows about the service (safe to reload here - not during deployment)
-echo "🔄 Reloading systemd services..."
-systemctl daemon-reload
-
-# Start systemd service for this project
-systemctl start "tfgrid-ai-project@${PROJECT_NAME}.service"
+# Use systemd-run to start the project (doesn't require daemon-reload!)
+# This creates a transient service unit on-the-fly
+echo "🚀 Starting agent loop..."
+systemd-run --unit="tfgrid-ai-project-${PROJECT_NAME}" \
+    --working-directory="$PROJECT_PATH" \
+    --property="User=developer" \
+    --property="Group=developer" \
+    --property="Restart=on-failure" \
+    --property="RestartSec=10" \
+    --property="StandardOutput=append:${PROJECT_PATH}/agent-output.log" \
+    --property="StandardError=append:${PROJECT_PATH}/agent-errors.log" \
+    /opt/ai-agent/scripts/agent-loop.sh "$PROJECT_PATH"
 
 # Wait a moment and check if started successfully
 sleep 1
-if systemctl is-active --quiet "tfgrid-ai-project@${PROJECT_NAME}.service"; then
-    PID=$(systemctl show -p MainPID --value "tfgrid-ai-project@${PROJECT_NAME}.service")
+UNIT_NAME="tfgrid-ai-project-${PROJECT_NAME}.service"
+if systemctl is-active --quiet "$UNIT_NAME"; then
+    PID=$(systemctl show -p MainPID --value "$UNIT_NAME")
     echo "✅ AI agent loop started with PID: $PID"
     echo "📝 Logs are being written to agent-output.log and agent-errors.log"
-    echo "🛑 To stop the loop, run: make stop"
+    echo "🛑 To stop: systemctl stop $UNIT_NAME"
 else
     echo "❌ Failed to start project: $PROJECT_NAME"
     echo ""
     echo "Recent logs:"
-    journalctl -u "tfgrid-ai-project@${PROJECT_NAME}.service" -n 20 --no-pager
+    journalctl -u "$UNIT_NAME" -n 20 --no-pager
     exit 1
 fi

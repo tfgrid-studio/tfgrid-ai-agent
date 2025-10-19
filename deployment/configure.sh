@@ -26,8 +26,12 @@ StandardError=append:/var/log/ai-agent/error.log
 WantedBy=multi-user.target
 EOF
 
-# Don't reload/enable/start systemd during deployment to avoid SSH disruption
+# Mark that systemd needs to be reloaded on first use
+# We can't run daemon-reload here because it might disrupt the Ansible SSH session
+touch /tmp/.tfgrid-systemd-needs-reload
+
+# Don't enable/start the service automatically
 # Service will be started on-demand when user runs commands
 
 echo "✅ Configuration complete"
-echo "ℹ️  Systemd service created (not started - will start on first use)"
+echo "ℹ️  Systemd service configured (daemon-reload will happen on first project start)"
