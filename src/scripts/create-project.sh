@@ -46,7 +46,7 @@ fi
 
 # Check authentication FIRST before asking for any input
 echo "🔍 Checking Qwen authentication..."
-if [ ! -f "$HOME/.qwen/settings.json" ]; then
+if ! su - developer -c 'test -f ~/.qwen/settings.json' 2>/dev/null; then
     echo ""
     echo "⚠️  Qwen is not authenticated!"
     echo ""
