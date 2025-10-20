@@ -1,6 +1,5 @@
 #!/bin/bash
-# restart-project.sh - Restart AI agent loop for a project
-# Part of the AI-Agent framework
+# restart-project.sh - Restart AI agent loop for a project via systemd
 
 set -e
 
@@ -29,21 +28,22 @@ fi
 echo "🔄 Restarting project: $PROJECT_NAME"
 echo ""
 
-# Check if project is running
-PROJECT_PID=$(pgrep -f "agent-loop.sh.*$PROJECT_NAME" 2>/dev/null || echo "")
-
-if [ -n "$PROJECT_PID" ]; then
-    echo "🛑 Stopping running instance (PID: $PROJECT_PID)..."
-    "$(dirname "$0")/stop-project.sh" "$PROJECT_NAME"
-    echo ""
-    sleep 2
+# Use systemd restart (handles both stop and start atomically)
+if systemctl restart "tfgrid-ai-project@${PROJECT_NAME}.service" 2>/dev/null; then
+    sleep 1
+    
+    if systemctl is-active --quiet "tfgrid-ai-project@${PROJECT_NAME}.service"; then
+        PID=$(systemctl show -p MainPID --value "tfgrid-ai-project@${PROJECT_NAME}.service")
+        echo "✅ Project '$PROJECT_NAME' restarted successfully"
+        echo "🆔 PID: $PID"
+        echo ""
+        echo "📊 Monitor: tfgrid-compose monitor $PROJECT_NAME"
+        echo "📝 Logs: tfgrid-compose logs $PROJECT_NAME"
+    else
+        echo "❌ Service restarted but not active"
+        exit 1
+    fi
 else
-    echo "⚠️  Project was not running"
-    echo ""
+    echo "❌ Failed to restart service"
+    exit 1
 fi
-
-echo "🚀 Starting project..."
-"$(dirname "$0")/run-project.sh" "$PROJECT_NAME"
-
-echo ""
-echo "✅ Project '$PROJECT_NAME' restarted successfully"

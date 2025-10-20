@@ -574,25 +574,25 @@ if [ "${SKIP_AUTOSTART:-0}" != "1" ] && [ "${NON_INTERACTIVE:-0}" != "1" ]; then
         echo "Starting AI agent for project '$PROJECT_NAME'..."
         echo ""
         
-        # Send command to daemon via socket
-        source "$(dirname "${BASH_SOURCE[0]}")/socket-client.sh"
-        RESPONSE=$(send_daemon_command "start" "$PROJECT_NAME")
-        
-        # Parse response
-        STATUS=$(echo "$RESPONSE" | jq -r '.status')
-        
-        if [ "$STATUS" = "success" ]; then
-            PID=$(echo "$RESPONSE" | jq -r '.pid')
-            echo "✅ AI agent started successfully"
-            echo "🔍 Project: $PROJECT_NAME"
-            echo "🆔 PID: $PID"
-            echo ""
-            echo "📊 Check status: tfgrid-compose projects"
-            echo "📝 View logs: tfgrid-compose logs $PROJECT_NAME"
-            echo "🛑 Stop agent: tfgrid-compose stop $PROJECT_NAME"
+        # Start via systemd service
+        if systemctl start "tfgrid-ai-project@${PROJECT_NAME}.service" 2>/dev/null; then
+            sleep 1
+            if systemctl is-active --quiet "tfgrid-ai-project@${PROJECT_NAME}.service"; then
+                PID=$(systemctl show -p MainPID --value "tfgrid-ai-project@${PROJECT_NAME}.service")
+                echo "✅ AI agent started successfully"
+                echo "🔍 Project: $PROJECT_NAME"
+                echo "🆔 PID: $PID"
+                echo ""
+                echo "📊 Check status: tfgrid-compose projects"
+                echo "📝 View logs: tfgrid-compose logs $PROJECT_NAME"
+                echo "🛑 Stop agent: tfgrid-compose stop $PROJECT_NAME"
+            else
+                echo "❌ Service started but not active"
+                echo ""
+                echo "Try manually with: tfgrid-compose run $PROJECT_NAME"
+            fi
         else
-            MESSAGE=$(echo "$RESPONSE" | jq -r '.message')
-            echo "❌ Failed to start: $MESSAGE"
+            echo "❌ Failed to start service"
             echo ""
             echo "Try manually with: tfgrid-compose run $PROJECT_NAME"
         fi

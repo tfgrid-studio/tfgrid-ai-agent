@@ -1,13 +1,12 @@
 #!/bin/bash
-# run-project.sh - Start AI agent loop via daemon socket
-# Sends command to always-running manager daemon
+# run-project.sh - Start AI agent loop via systemd service
+# Uses systemd template service for reliable process management
 
 set -e
 
 # Source common functions
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/common-project.sh"
-source "$SCRIPT_DIR/socket-client.sh"
 
 PROJECT_NAME="$1"
 
@@ -59,26 +58,44 @@ fi
 echo "✅ Qwen authenticated"
 echo ""
 
-# Send start command to daemon via socket
-RESPONSE=$(send_daemon_command "start" "$PROJECT_NAME")
-
-# Parse and display response
-STATUS=$(echo "$RESPONSE" | jq -r '.status')
-
-if [ "$STATUS" = "success" ]; then
-    PID=$(echo "$RESPONSE" | jq -r '.pid')
-    echo "✅ AI agent loop started successfully"
-    echo "🔍 Project: $PROJECT_NAME"
+# Check if already running
+if systemctl is-active --quiet "tfgrid-ai-project@${PROJECT_NAME}.service"; then
+    echo "⚠️  Project is already running"
+    PID=$(systemctl show -p MainPID --value "tfgrid-ai-project@${PROJECT_NAME}.service")
     echo "🆔 PID: $PID"
     echo ""
-    echo "📝 Logs:"
-    echo "  - Output: ${PROJECT_PATH}/agent-output.log"
-    echo "  - Errors: ${PROJECT_PATH}/agent-errors.log"
-    echo ""
+    echo "📊 To monitor: tfgrid-compose monitor $PROJECT_NAME"
+    echo "📝 To view logs: tfgrid-compose logs $PROJECT_NAME"
     echo "🛑 To stop: tfgrid-compose stop $PROJECT_NAME"
-    echo "📊 To monitor: tfgrid-compose logs $PROJECT_NAME"
+    exit 0
+fi
+
+# Start via systemd
+echo "🔧 Starting systemd service..."
+if systemctl start "tfgrid-ai-project@${PROJECT_NAME}.service" 2>/dev/null; then
+    sleep 1
+    
+    if systemctl is-active --quiet "tfgrid-ai-project@${PROJECT_NAME}.service"; then
+        PID=$(systemctl show -p MainPID --value "tfgrid-ai-project@${PROJECT_NAME}.service")
+        echo "✅ AI agent loop started successfully"
+        echo "🔍 Project: $PROJECT_NAME"
+        echo "🆔 PID: $PID"
+        echo ""
+        echo "📝 Logs:"
+        echo "  - View with: tfgrid-compose logs $PROJECT_NAME"
+        echo "  - Or: journalctl -u tfgrid-ai-project@${PROJECT_NAME}.service -f"
+        echo ""
+        echo "🛑 To stop: tfgrid-compose stop $PROJECT_NAME"
+        echo "📊 To monitor: tfgrid-compose monitor $PROJECT_NAME"
+    else
+        echo "❌ Service started but not active"
+        echo ""
+        echo "Check logs with: journalctl -u tfgrid-ai-project@${PROJECT_NAME}.service"
+        exit 1
+    fi
 else
-    MESSAGE=$(echo "$RESPONSE" | jq -r '.message')
-    echo "❌ Failed to start project: $MESSAGE"
+    echo "❌ Failed to start service"
+    echo ""
+    echo "Check logs with: journalctl -u tfgrid-ai-project@${PROJECT_NAME}.service"
     exit 1
 fi

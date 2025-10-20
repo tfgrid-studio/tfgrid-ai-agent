@@ -1,12 +1,11 @@
 #!/bin/bash
-# stop-project.sh - Stop AI agent loop via daemon socket
+# stop-project.sh - Stop AI agent loop via systemd service
 
 set -e
 
 # Source common functions
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/common-project.sh"
-source "$SCRIPT_DIR/socket-client.sh"
 
 PROJECT_NAME="$1"
 
@@ -29,17 +28,20 @@ if [ -z "$PROJECT_NAME" ]; then
 fi
 
 echo "🛑 Stopping AI agent loop for project: $PROJECT_NAME"
+echo ""
 
-# Send stop command to daemon via socket
-RESPONSE=$(send_daemon_command "stop" "$PROJECT_NAME")
+# Check if running
+if ! systemctl is-active --quiet "tfgrid-ai-project@${PROJECT_NAME}.service"; then
+    echo "⚠️  Project is not running"
+    exit 0
+fi
 
-# Parse response
-STATUS=$(echo "$RESPONSE" | jq -r '.status')
-
-if [ "$STATUS" = "success" ]; then
+# Stop via systemd
+if systemctl stop "tfgrid-ai-project@${PROJECT_NAME}.service" 2>/dev/null; then
     echo "✅ AI agent loop stopped for: $PROJECT_NAME"
 else
-    MESSAGE=$(echo "$RESPONSE" | jq -r '.message')
-    echo "❌ Failed to stop: $MESSAGE"
+    echo "❌ Failed to stop service"
+    echo ""
+    echo "Check status with: systemctl status tfgrid-ai-project@${PROJECT_NAME}.service"
     exit 1
 fi

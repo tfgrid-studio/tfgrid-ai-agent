@@ -15,9 +15,9 @@ apt-get install -y nodejs
 echo "📦 Installing expect..."
 apt-get install -y expect
 
-# Install netcat and jq for daemon socket communication
-echo "📦 Installing netcat and jq..."
-apt-get install -y netcat-openbsd jq
+# Install jq for JSON parsing
+echo "📦 Installing jq..."
+apt-get install -y jq
 
 # Install qwen-cli
 echo "📦 Installing qwen-cli..."
@@ -96,7 +96,7 @@ cp -r /home/developer/.qwen /root/ 2>/dev/null || echo "ℹ️  Qwen credentials
 
 # Install systemd template service for per-project management
 echo "🔧 Installing systemd template service..."
-cp /tmp/app-deployment/tfgrid-ai-project@.service /etc/systemd/system/
+cp /tmp/app-source/systemd/tfgrid-ai-project@.service /etc/systemd/system/
 systemctl daemon-reload
 
 # Disable old single service if it exists

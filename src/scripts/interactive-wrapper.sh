@@ -55,33 +55,31 @@ statuses=()
 
 # Determine workspace base directory
 WORKSPACE_BASE="${PROJECT_WORKSPACE:-/home/developer/code}"
+PROJECTS_DIR="$WORKSPACE_BASE/tfgrid-ai-agent-projects"
 
-# Search across all git sources
-for project_dir in "$WORKSPACE_BASE"/*/*/.agent "$WORKSPACE_BASE"/*/*/*/.agent; do
-    if [ ! -d "$project_dir" ]; then
-        continue
-    fi
-    
-    project_path=$(dirname "$project_dir")
-    project_name=$(basename "$project_path")
-    
-    # Skip ai-agent directory
-    if [ "$project_name" = "ai-agent" ]; then
-        continue
-    fi
-    
-    # Check if running
-    PROJECT_PID=$(pgrep -f "agent-loop.sh.*$project_name" 2>/dev/null || echo "")
-    
-    if [ -n "$PROJECT_PID" ]; then
-        status="🟢 Running"
-    else
-        status="⭕ Stopped"
-    fi
-    
-    projects+=("$project_name")
-    statuses+=("$status")
-done
+# Get list of running projects from systemd
+RUNNING_SERVICES=$(systemctl list-units 'tfgrid-ai-project@*.service' --no-legend --no-pager 2>/dev/null | \
+                   awk '{print $1}' | \
+                   sed 's/tfgrid-ai-project@\(.*\)\.service/\1/' || echo "")
+
+# Find all project directories
+if [ -d "$PROJECTS_DIR" ]; then
+    for project_dir in "$PROJECTS_DIR"/*; do
+        if [ -d "$project_dir" ] && [ -d "$project_dir/.agent" ]; then
+            project_name=$(basename "$project_dir")
+            
+            # Check if running via systemd
+            if echo "$RUNNING_SERVICES" | grep -q "^${project_name}$"; then
+                status="🟢 Running"
+            else
+                status="⭕ Stopped"
+            fi
+            
+            projects+=("$project_name")
+            statuses+=("$status")
+        fi
+    done
+fi
 
 # Check if any projects found
 if [ ${#projects[@]} -eq 0 ]; then

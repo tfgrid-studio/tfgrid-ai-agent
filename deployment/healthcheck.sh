@@ -6,41 +6,12 @@ set -e
 
 echo "🏥 Running health checks for tfgrid-ai-agent..."
 
-# Check if manager socket is active
-echo -n "🔍 Checking manager socket... "
-if systemctl is-active --quiet tfgrid-ai-manager.socket; then
-    echo "✅ Manager socket is active"
+# Check if systemd service template exists
+echo -n "🔍 Checking systemd service template... "
+if systemctl cat tfgrid-ai-project@.service &>/dev/null; then
+    echo "✅ Service template installed"
 else
-    echo "❌ Manager socket is NOT active"
-    systemctl status tfgrid-ai-manager.socket
-    exit 1
-fi
-
-# Check if socket exists
-echo -n "🔍 Checking socket... "
-if [ -S /run/ai-agent.sock ]; then
-    echo "✅ Socket exists"
-else
-    echo "❌ Socket does NOT exist"
-    exit 1
-fi
-
-# Check if socket responds
-echo -n "🔍 Checking socket communication... "
-RESPONSE=$(echo '{"action":"list"}' | nc -U /run/ai-agent.sock 2>/dev/null || echo "")
-if [ -n "$RESPONSE" ]; then
-    echo "✅ Socket is responsive"
-else
-    echo "❌ Socket not responding"
-    exit 1
-fi
-
-# Check nc and jq
-echo -n "🔍 Checking nc (netcat)... "
-if command -v nc &> /dev/null; then
-    echo "✅ nc is installed"
-else
-    echo "❌ nc is NOT installed"
+    echo "❌ Service template not found"
     exit 1
 fi
 
