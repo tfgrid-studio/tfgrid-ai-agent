@@ -23,7 +23,7 @@ send_daemon_command() {
         return 1
     fi
     
-    # Send to daemon and get response
-    RESPONSE=$(echo "$REQUEST" | socat - UNIX-CONNECT:"$SOCKET_PATH" 2>/dev/null || echo '{"status":"error","message":"Failed to connect to daemon"}')
+    # Send to daemon and get response (using nc instead of socat for systemd socket compatibility)
+    RESPONSE=$(echo "$REQUEST" | nc -U "$SOCKET_PATH" 2>/dev/null || echo '{"status":"error","message":"Failed to connect to daemon"}')
     echo "$RESPONSE"
 }

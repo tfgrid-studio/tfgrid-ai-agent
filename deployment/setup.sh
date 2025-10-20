@@ -15,9 +15,9 @@ apt-get install -y nodejs
 echo "📦 Installing expect..."
 apt-get install -y expect
 
-# Install socat and jq for daemon socket communication
-echo "📦 Installing socat and jq..."
-apt-get install -y socat jq
+# Install netcat and jq for daemon socket communication
+echo "📦 Installing netcat and jq..."
+apt-get install -y netcat-openbsd jq
 
 # Install qwen-cli
 echo "📦 Installing qwen-cli..."

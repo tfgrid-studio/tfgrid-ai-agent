@@ -27,7 +27,7 @@ fi
 
 # Check if socket responds
 echo -n "🔍 Checking socket communication... "
-RESPONSE=$(echo '{"action":"list"}' | socat - UNIX-CONNECT:/run/ai-agent.sock 2>/dev/null || echo "")
+RESPONSE=$(echo '{"action":"list"}' | nc -U /run/ai-agent.sock 2>/dev/null || echo "")
 if [ -n "$RESPONSE" ]; then
     echo "✅ Socket is responsive"
 else
@@ -35,12 +35,12 @@ else
     exit 1
 fi
 
-# Check socat and jq
-echo -n "🔍 Checking socat... "
-if command -v socat &> /dev/null; then
-    echo "✅ socat is installed"
+# Check nc and jq
+echo -n "🔍 Checking nc (netcat)... "
+if command -v nc &> /dev/null; then
+    echo "✅ nc is installed"
 else
-    echo "❌ socat is NOT installed"
+    echo "❌ nc is NOT installed"
     exit 1
 fi
 
