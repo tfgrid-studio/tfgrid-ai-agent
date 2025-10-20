@@ -62,11 +62,11 @@ echo ""
 echo "🚀 Starting AI agent loop for project: $PROJECT_NAME"
 
 # Start the service (systemd was reloaded during deployment)
-# Use --no-block to prevent SSH session from hanging
-systemctl start --no-block "tfgrid-ai-project@${PROJECT_NAME}.service"
+# Use nohup and background to completely detach from SSH session
+nohup systemctl start "tfgrid-ai-project@${PROJECT_NAME}.service" > /dev/null 2>&1 &
 
 # Wait a moment and check if started successfully
-sleep 2
+sleep 3
 if systemctl is-active --quiet "tfgrid-ai-project@${PROJECT_NAME}.service"; then
     PID=$(systemctl show -p MainPID --value "tfgrid-ai-project@${PROJECT_NAME}.service")
     echo "✅ AI agent loop started successfully"
