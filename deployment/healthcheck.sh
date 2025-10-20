@@ -6,13 +6,13 @@ set -e
 
 echo "🏥 Running health checks for tfgrid-ai-agent..."
 
-# Check if manager daemon is running
-echo -n "🔍 Checking manager daemon... "
-if systemctl is-active --quiet tfgrid-ai-manager.service; then
-    echo "✅ Manager daemon is running"
+# Check if manager socket is active
+echo -n "🔍 Checking manager socket... "
+if systemctl is-active --quiet tfgrid-ai-manager.socket; then
+    echo "✅ Manager socket is active"
 else
-    echo "❌ Manager daemon is NOT running"
-    systemctl status tfgrid-ai-manager.service
+    echo "❌ Manager socket is NOT active"
+    systemctl status tfgrid-ai-manager.socket
     exit 1
 fi
 

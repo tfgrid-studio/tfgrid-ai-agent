@@ -1,0 +1,12 @@
+[Unit]
+Description=TFGrid AI Agent Manager Handler (connection %i)
+
+[Service]
+Type=simple
+ExecStart=/opt/ai-agent/scripts/handle-command.sh
+StandardInput=socket
+StandardOutput=socket
+StandardError=journal
+User=root
+MemoryMax=50M
+CPUQuota=5%

@@ -6,7 +6,7 @@ set -euo pipefail
 
 SOCKET_PATH="/var/run/ai-agent.sock"
 STATE_FILE="/var/lib/ai-agent/projects.json"
-HANDLER_SCRIPT="/opt/ai-agent/scripts/handle-command.sh"
+HANDLER_WRAPPER="/opt/ai-agent/scripts/socket-handler-wrapper.sh"
 
 # Cleanup on exit
 cleanup() {
@@ -28,6 +28,6 @@ fi
 rm -f "$SOCKET_PATH"
 
 # Start socket listener with fork model
-# Each connection spawns independent handler process
+# Each connection spawns independent handler process  
 echo "$(date): Starting AI Agent Manager on $SOCKET_PATH"
-exec socat UNIX-LISTEN:"$SOCKET_PATH",fork,mode=0600 SYSTEM:"$HANDLER_SCRIPT"
+exec socat UNIX-LISTEN:"$SOCKET_PATH",fork,mode=0600 EXEC:"$HANDLER_WRAPPER"
