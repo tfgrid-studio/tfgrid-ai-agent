@@ -2,7 +2,7 @@
 # Socket client helper library
 # Provides reusable function for communicating with daemon
 
-SOCKET_PATH="/var/run/ai-agent.sock"
+SOCKET_PATH="/run/ai-agent.sock"
 
 # Function to send command and get response
 # Usage: send_daemon_command "action" ["project"]

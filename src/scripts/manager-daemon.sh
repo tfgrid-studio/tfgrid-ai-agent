@@ -4,7 +4,7 @@
 
 set -euo pipefail
 
-SOCKET_PATH="/var/run/ai-agent.sock"
+SOCKET_PATH="/run/ai-agent.sock"
 STATE_FILE="/var/lib/ai-agent/projects.json"
 HANDLER_WRAPPER="/opt/ai-agent/scripts/socket-handler-wrapper.sh"
 

@@ -18,7 +18,7 @@ fi
 
 # Check if socket exists
 echo -n "🔍 Checking socket... "
-if [ -S /var/run/ai-agent.sock ]; then
+if [ -S /run/ai-agent.sock ]; then
     echo "✅ Socket exists"
 else
     echo "❌ Socket does NOT exist"
@@ -27,7 +27,7 @@ fi
 
 # Check if socket responds
 echo -n "🔍 Checking socket communication... "
-RESPONSE=$(echo '{"action":"list"}' | socat - UNIX-CONNECT:/var/run/ai-agent.sock 2>/dev/null || echo "")
+RESPONSE=$(echo '{"action":"list"}' | socat - UNIX-CONNECT:/run/ai-agent.sock 2>/dev/null || echo "")
 if [ -n "$RESPONSE" ]; then
     echo "✅ Socket is responsive"
 else

@@ -49,8 +49,8 @@ sleep 1
 # Verify socket is listening
 if systemctl is-active --quiet tfgrid-ai-manager.socket; then
     echo "✅ Manager socket started successfully"
-    if [ -S /var/run/ai-agent.sock ]; then
-        echo "✅ Socket listening: /var/run/ai-agent.sock"
+    if [ -S /run/ai-agent.sock ]; then
+        echo "✅ Socket listening: /run/ai-agent.sock"
     else
         echo "⚠️  Socket not found"
         exit 1

@@ -2,7 +2,7 @@
 Description=TFGrid AI Agent Manager Socket
 
 [Socket]
-ListenStream=/var/run/ai-agent.sock
+ListenStream=/run/ai-agent.sock
 SocketMode=0600
 Accept=yes
 

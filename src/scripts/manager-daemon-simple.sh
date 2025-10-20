@@ -3,7 +3,7 @@
 
 set -euo pipefail
 
-SOCKET_PATH="/var/run/ai-agent.sock"
+SOCKET_PATH="/run/ai-agent.sock"
 STATE_FILE="/var/lib/ai-agent/projects.json"
 HANDLER="/opt/ai-agent/scripts/handle-command.sh"
 
