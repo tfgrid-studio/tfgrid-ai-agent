@@ -3,7 +3,7 @@ Description=TFGrid AI Agent Manager Handler (connection %i)
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/stdbuf -oL /opt/ai-agent/scripts/handle-command.sh
+ExecStart=/opt/ai-agent/scripts/socket-handler.sh
 StandardInput=socket
 StandardOutput=socket
 StandardError=journal
