@@ -73,7 +73,7 @@ commands:
     description: Create a new AI coding project
     args: "[project-name]"
     interactive: true
-    allocate_tty: false
+    allocate_tty: true
   
   select-project:
     script: /opt/ai-agent/scripts/select-project-command.sh

@@ -575,7 +575,12 @@ if [ "${SKIP_AUTOSTART:-0}" != "1" ] && [ "${NON_INTERACTIVE:-0}" != "1" ]; then
         echo ""
         # Use the run-project.sh script directly
         # (auth already checked at the beginning)
-        "$(dirname "${BASH_SOURCE[0]}")/run-project.sh" "$PROJECT_NAME"
+        # Use setsid to completely detach from TTY session to prevent SSH death
+        setsid "$(dirname "${BASH_SOURCE[0]}")/run-project.sh" "$PROJECT_NAME" < /dev/null &> /tmp/agent-start-$PROJECT_NAME.log &
+        sleep 1
+        echo "✅ Agent start initiated in background"
+        echo "📊 Check status: tfgrid-compose projects"
+        echo "📝 View logs: tfgrid-compose logs $PROJECT_NAME"
     else
         echo "Next steps:"
         echo ""
