@@ -30,4 +30,4 @@ rm -f "$SOCKET_PATH"
 # Start socket listener with fork model
 # Each connection spawns independent handler process
 echo "$(date): Starting AI Agent Manager on $SOCKET_PATH"
-exec socat UNIX-LISTEN:"$SOCKET_PATH",fork,mode=0600 EXEC:"/bin/bash $HANDLER_SCRIPT"
+exec socat UNIX-LISTEN:"$SOCKET_PATH",fork,mode=0600 SYSTEM:"$HANDLER_SCRIPT"
