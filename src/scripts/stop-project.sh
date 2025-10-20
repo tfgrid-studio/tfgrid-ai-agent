@@ -1,12 +1,12 @@
 #!/bin/bash
-# stop-project.sh - Stop AI agent loop for a project using systemd
-# Part of the enhanced AI-Agent workflow
+# stop-project.sh - Stop AI agent loop via daemon socket
 
 set -e
 
 # Source common functions
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/common-project.sh"
+source "$SCRIPT_DIR/socket-client.sh"
 
 PROJECT_NAME="$1"
 
@@ -28,20 +28,18 @@ if [ -z "$PROJECT_NAME" ]; then
     fi
 fi
 
-# Find project in workspace (to verify it exists)
-PROJECT_PATH=$(find_project_path "$PROJECT_NAME")
-
-if [ -z "$PROJECT_PATH" ]; then
-    echo "❌ Error: Project '$PROJECT_NAME' not found"
-    echo ""
-    echo "Available projects:"
-    list_projects_brief
-    exit 1
-fi
-
 echo "🛑 Stopping AI agent loop for project: $PROJECT_NAME"
 
-# Stop systemd service for this project
-systemctl stop "tfgrid-ai-project@${PROJECT_NAME}.service" 2>/dev/null || true
+# Send stop command to daemon via socket
+RESPONSE=$(send_daemon_command "stop" "$PROJECT_NAME")
 
-echo "✅ AI agent loop stopped"
+# Parse response
+STATUS=$(echo "$RESPONSE" | jq -r '.status')
+
+if [ "$STATUS" = "success" ]; then
+    echo "✅ AI agent loop stopped for: $PROJECT_NAME"
+else
+    MESSAGE=$(echo "$RESPONSE" | jq -r '.message')
+    echo "❌ Failed to stop: $MESSAGE"
+    exit 1
+fi

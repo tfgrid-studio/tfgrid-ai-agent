@@ -573,14 +573,29 @@ if [ "${SKIP_AUTOSTART:-0}" != "1" ] && [ "${NON_INTERACTIVE:-0}" != "1" ]; then
     if [[ "$START_NOW" =~ ^[Yy]$ ]]; then
         echo "Starting AI agent for project '$PROJECT_NAME'..."
         echo ""
-        # Use the run-project.sh script directly
-        # (auth already checked at the beginning)
-        # Use setsid to completely detach from TTY session to prevent SSH death
-        setsid "$(dirname "${BASH_SOURCE[0]}")/run-project.sh" "$PROJECT_NAME" < /dev/null &> /tmp/agent-start-$PROJECT_NAME.log &
-        sleep 1
-        echo "✅ Agent start initiated in background"
-        echo "📊 Check status: tfgrid-compose projects"
-        echo "📝 View logs: tfgrid-compose logs $PROJECT_NAME"
+        
+        # Send command to daemon via socket
+        source "$(dirname "${BASH_SOURCE[0]}")/socket-client.sh"
+        RESPONSE=$(send_daemon_command "start" "$PROJECT_NAME")
+        
+        # Parse response
+        STATUS=$(echo "$RESPONSE" | jq -r '.status')
+        
+        if [ "$STATUS" = "success" ]; then
+            PID=$(echo "$RESPONSE" | jq -r '.pid')
+            echo "✅ AI agent started successfully"
+            echo "🔍 Project: $PROJECT_NAME"
+            echo "🆔 PID: $PID"
+            echo ""
+            echo "📊 Check status: tfgrid-compose projects"
+            echo "📝 View logs: tfgrid-compose logs $PROJECT_NAME"
+            echo "🛑 Stop agent: tfgrid-compose stop $PROJECT_NAME"
+        else
+            MESSAGE=$(echo "$RESPONSE" | jq -r '.message')
+            echo "❌ Failed to start: $MESSAGE"
+            echo ""
+            echo "Try manually with: tfgrid-compose run $PROJECT_NAME"
+        fi
     else
         echo "Next steps:"
         echo ""

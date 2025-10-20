@@ -1,79 +1,69 @@
 #!/bin/bash
-# status-projects.sh - Show status of all AI agent projects
-# Part of the AI-Agent framework
+# status-projects.sh - Show status of all AI agent projects via daemon
 
 set -e
 
-echo "AI Agent Projects Status"
-echo "========================="
+# Source socket client
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/socket-client.sh"
+
+PROJECTS_DIR="/home/developer/code/tfgrid-ai-agent-projects"
+
+echo "📊 AI Agent Projects Status"
+echo "=============================="
 echo ""
 
-# Determine workspace base directory
-WORKSPACE_BASE="${PROJECT_WORKSPACE:-/home/developer/code}"
+# Get list of running projects from daemon
+RESPONSE=$(send_daemon_command "list")
+PROJECTS=$(echo "$RESPONSE" | jq -r '.projects[]' 2>/dev/null || true)
 
-# Find all projects with .agent directory across all git sources
-found_projects=false
+if [ -z "$PROJECTS" ]; then
+    echo "No projects currently running"
+    echo ""
+    echo "Create a project: tfgrid-compose create"
+    exit 0
+fi
 
-# Search in github.com, git.ourworld.tf, gitlab.com, etc.
-for project_dir in "$WORKSPACE_BASE"/*/*/.agent "$WORKSPACE_BASE"/*/*/*/.agent; do
-    if [ ! -d "$project_dir" ]; then
-        continue
-    fi
+# Show each running project
+for PROJECT in $PROJECTS; do
+    # Get detailed status from daemon
+    STATUS_RESPONSE=$(send_daemon_command "status" "$PROJECT")
+    PID=$(echo "$STATUS_RESPONSE" | jq -r '.pid // "?"')
+    STARTED=$(echo "$STATUS_RESPONSE" | jq -r '.started_at // "unknown"')
     
-    project_path=$(dirname "$project_dir")
-    project_name=$(basename "$project_path")
-    
-    # Skip the ai-agent directory itself
-    if [ "$project_name" = "ai-agent" ]; then
-        continue
-    fi
-    
-    found_projects=true
-    
-    # Get project info
-    cd "$project_path"
-    
-    # Check if running - look for the project path in process args
-    PROJECT_PID=$(pgrep -f "agent-loop.sh.*$project_path" 2>/dev/null || echo "")
-    
-    # Get version and time constraint
-    if [ -f ".agent/time_log.txt" ]; then
-        VERSION=$(grep "Project Version:" .agent/time_log.txt 2>/dev/null | cut -d':' -f2 | tr -d ' ')
-        [ -z "$VERSION" ] && VERSION="1"
-        TIME_CONSTRAINT=$(grep "Time Constraint:" .agent/time_log.txt 2>/dev/null | cut -d':' -f2- | xargs)
-        [ -z "$TIME_CONSTRAINT" ] && TIME_CONSTRAINT="indefinite"
-        START_TIME=$(grep "Project Start Time:" .agent/time_log.txt 2>/dev/null | cut -d':' -f2- | xargs)
-        [ -z "$START_TIME" ] && START_TIME="unknown"
+    # Get additional info from project directory
+    PROJECT_PATH="$PROJECTS_DIR/$PROJECT"
+    if [ -d "$PROJECT_PATH" ]; then
+        # Time constraint
+        if [ -f "$PROJECT_PATH/.qwen/config.json" ]; then
+            TIME_CONSTRAINT=$(jq -r '.time_constraint // "indefinite"' "$PROJECT_PATH/.qwen/config.json" 2>/dev/null || echo "indefinite")
+        else
+            TIME_CONSTRAINT="indefinite"
+        fi
+        
+        # Last commit
+        if [ -d "$PROJECT_PATH/.git" ]; then
+            cd "$PROJECT_PATH"
+            LAST_COMMIT=$(git log -1 --format="%cr" 2>/dev/null || echo "no commits")
+            cd - > /dev/null
+        else
+            LAST_COMMIT="no commits"
+        fi
     else
-        VERSION="1"
-        TIME_CONSTRAINT="indefinite"
-        START_TIME="unknown"
-    fi
-    
-    # Get last commit
-    LAST_COMMIT=$(git log -1 --format="%cr" 2>/dev/null || echo "no commits")
-    
-    # Status indicator
-    if [ -n "$PROJECT_PID" ]; then
-        STATUS="🟢 Running (PID: $PROJECT_PID)"
-    else
-        STATUS="⭕ Stopped"
+        TIME_CONSTRAINT="unknown"
+        LAST_COMMIT="unknown"
     fi
     
     # Print project info
-    echo "📁 $project_name"
-    echo "   Status: $STATUS"
-    echo "   Version: $VERSION"
-    echo "   Time constraint: $TIME_CONSTRAINT"
-    echo "   Started: $START_TIME"
-    echo "   Last commit: $LAST_COMMIT"
+    echo "📁 $PROJECT"
+    echo "   🟢 Status: Running"
+    echo "   🆔 PID: $PID"
+    echo "   🕒 Started: $STARTED"
+    echo "   ⏱️  Time limit: $TIME_CONSTRAINT"
+    echo "   📝 Last commit: $LAST_COMMIT"
+    echo "   📂 Logs: $PROJECT_PATH/agent-output.log"
     echo ""
-    
-    cd - > /dev/null
 done
 
-if [ "$found_projects" = false ]; then
-    echo "No projects found."
-    echo ""
-    echo "Create one with: make create"
-fi
+echo "🛑 Stop a project: tfgrid-compose stop <project-name>"
+echo "🛑 Stop all: tfgrid-compose stopall"

@@ -1,12 +1,13 @@
 #!/bin/bash
-# run-project.sh - Start AI agent loop for a project using systemd
-# Part of the enhanced AI-Agent workflow
+# run-project.sh - Start AI agent loop via daemon socket
+# Sends command to always-running manager daemon
 
 set -e
 
 # Source common functions
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/common-project.sh"
+source "$SCRIPT_DIR/socket-client.sh"
 
 PROJECT_NAME="$1"
 
@@ -58,31 +59,26 @@ fi
 echo "✅ Qwen authenticated"
 echo ""
 
-# Start the systemd service using the template
-echo "🚀 Starting AI agent loop for project: $PROJECT_NAME"
+# Send start command to daemon via socket
+RESPONSE=$(send_daemon_command "start" "$PROJECT_NAME")
 
-# Start the service (systemd was reloaded during deployment)
-# SSH is invoked without TTY allocation, so systemctl won't block
-systemctl start "tfgrid-ai-project@${PROJECT_NAME}.service"
+# Parse and display response
+STATUS=$(echo "$RESPONSE" | jq -r '.status')
 
-# Wait a moment and check if started successfully
-sleep 2
-if systemctl is-active --quiet "tfgrid-ai-project@${PROJECT_NAME}.service"; then
-    PID=$(systemctl show -p MainPID --value "tfgrid-ai-project@${PROJECT_NAME}.service")
+if [ "$STATUS" = "success" ]; then
+    PID=$(echo "$RESPONSE" | jq -r '.pid')
     echo "✅ AI agent loop started successfully"
-    echo "🔍 Service: tfgrid-ai-project@${PROJECT_NAME}.service"
+    echo "🔍 Project: $PROJECT_NAME"
     echo "🆔 PID: $PID"
     echo ""
     echo "📝 Logs:"
     echo "  - Output: ${PROJECT_PATH}/agent-output.log"
     echo "  - Errors: ${PROJECT_PATH}/agent-errors.log"
     echo ""
-    echo "🛑 To stop:    systemctl stop tfgrid-ai-project@${PROJECT_NAME}.service"
-    echo "📊 To monitor: journalctl -u tfgrid-ai-project@${PROJECT_NAME}.service -f"
+    echo "🛑 To stop: tfgrid-compose stop $PROJECT_NAME"
+    echo "📊 To monitor: tfgrid-compose logs $PROJECT_NAME"
 else
-    echo "❌ Failed to start project: $PROJECT_NAME"
-    echo ""
-    echo "Recent logs:"
-    journalctl -u "tfgrid-ai-project@${PROJECT_NAME}.service" -n 20 --no-pager
+    MESSAGE=$(echo "$RESPONSE" | jq -r '.message')
+    echo "❌ Failed to start project: $MESSAGE"
     exit 1
 fi

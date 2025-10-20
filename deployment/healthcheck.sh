@@ -6,13 +6,49 @@ set -e
 
 echo "🏥 Running health checks for tfgrid-ai-agent..."
 
-# Check if service is running
-echo -n "🔍 Checking service status... "
-if systemctl is-active --quiet tfgrid-ai-agent; then
-    echo "✅ Service is running"
+# Check if manager daemon is running
+echo -n "🔍 Checking manager daemon... "
+if systemctl is-active --quiet tfgrid-ai-manager.service; then
+    echo "✅ Manager daemon is running"
 else
-    echo "❌ Service is NOT running"
-    systemctl status tfgrid-ai-agent
+    echo "❌ Manager daemon is NOT running"
+    systemctl status tfgrid-ai-manager.service
+    exit 1
+fi
+
+# Check if socket exists
+echo -n "🔍 Checking socket... "
+if [ -S /var/run/ai-agent.sock ]; then
+    echo "✅ Socket exists"
+else
+    echo "❌ Socket does NOT exist"
+    exit 1
+fi
+
+# Check if socket responds
+echo -n "🔍 Checking socket communication... "
+RESPONSE=$(echo '{"action":"list"}' | socat - UNIX-CONNECT:/var/run/ai-agent.sock 2>/dev/null || echo "")
+if [ -n "$RESPONSE" ]; then
+    echo "✅ Socket is responsive"
+else
+    echo "❌ Socket not responding"
+    exit 1
+fi
+
+# Check socat and jq
+echo -n "🔍 Checking socat... "
+if command -v socat &> /dev/null; then
+    echo "✅ socat is installed"
+else
+    echo "❌ socat is NOT installed"
+    exit 1
+fi
+
+echo -n "🔍 Checking jq... "
+if command -v jq &> /dev/null; then
+    echo "✅ jq is installed"
+else
+    echo "❌ jq is NOT installed"
     exit 1
 fi
 

@@ -1,0 +1,20 @@
+[Unit]
+Description=TFGrid AI Agent Manager
+After=network.target
+Documentation=https://github.com/tfgrid-studio/tfgrid-ai-agent
+
+[Service]
+Type=simple
+User=root
+ExecStart=/opt/ai-agent/scripts/manager-daemon.sh
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+# Resource limits
+MemoryMax=100M
+CPUQuota=10%
+
+[Install]
+WantedBy=multi-user.target

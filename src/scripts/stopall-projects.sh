@@ -1,72 +1,59 @@
 #!/bin/bash
-# stopall-projects.sh - Stop all running AI agent loops
-# This stops all running agent loops across all projects in the workspace
+# stopall-projects.sh - Stop all running AI agent loops via daemon
 
 set -e
 
-echo " Stopping All AI Agent Loops"
+# Source socket client
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/socket-client.sh"
+
+echo "🛑 Stopping All AI Agent Loops"
 echo "=============================="
 echo ""
 
-# Determine workspace base directory
-WORKSPACE_BASE="${PROJECT_WORKSPACE:-/home/developer/code}"
+# Get list of running projects from daemon
+RESPONSE=$(send_daemon_command "list")
+PROJECTS=$(echo "$RESPONSE" | jq -r '.projects[]' 2>/dev/null || true)
 
-# Collect all running projects
-running_projects=()
-running_pids=()
-
-# Search across all git sources
-for project_dir in "$WORKSPACE_BASE"/*/*/.agent "$WORKSPACE_BASE"/*/*/*/.agent; do
-    if [ ! -d "$project_dir" ]; then
-        continue
-    fi
-    
-    project_path=$(dirname "$project_dir")
-    project_name=$(basename "$project_path")
-    
-    # Skip ai-agent directory
-    if [ "$project_name" = "ai-agent" ]; then
-        continue
-    fi
-    
-    # Check if running
-    PROJECT_PID=$(pgrep -f "agent-loop.sh.*$project_name" 2>/dev/null || echo "")
-    
-    if [ -n "$PROJECT_PID" ]; then
-        running_projects+=("$project_name")
-        running_pids+=("$PROJECT_PID")
-    fi
-done
-
-# Check if any projects are running
-if [ ${#running_projects[@]} -eq 0 ]; then
+if [ -z "$PROJECTS" ]; then
     echo "✅ No running projects found"
     exit 0
 fi
 
+# Count projects
+PROJECT_COUNT=$(echo "$PROJECTS" | wc -l)
+
 # Display running projects
-echo "Found ${#running_projects[@]} running project(s):"
+echo "Found $PROJECT_COUNT running project(s):"
 echo ""
-for i in "${!running_projects[@]}"; do
-    echo "  - ${running_projects[$i]} (PID: ${running_pids[$i]})"
+for PROJECT in $PROJECTS; do
+    echo "  - $PROJECT"
 done
 echo ""
 
-# Confirm
-read -p "Stop all projects? (y/N): " confirm
-if [ "$confirm" != "y" ] && [ "$confirm" != "Y" ]; then
-    echo "❌ Cancelled"
-    exit 0
+# Confirm (skip in non-interactive mode)
+if [ -t 0 ]; then
+    read -p "Stop all projects? (y/N): " confirm
+    if [ "$confirm" != "y" ] && [ "$confirm" != "Y" ]; then
+        echo "❌ Cancelled"
+        exit 0
+    fi
+    echo ""
 fi
 
-echo ""
 echo "🛑 Stopping all projects..."
 echo ""
 
-# Stop each project
-for project_name in "${running_projects[@]}"; do
-    echo "  Stopping: $project_name"
-    "$(dirname "$0")/stop-project.sh" "$project_name" 2>&1 | sed 's/^/    /'
+# Stop each project via daemon
+for PROJECT in $PROJECTS; do
+    echo "  Stopping: $PROJECT"
+    RESPONSE=$(send_daemon_command "stop" "$PROJECT")
+    STATUS=$(echo "$RESPONSE" | jq -r '.status')
+    if [ "$STATUS" = "success" ]; then
+        echo "    ✅ Stopped"
+    else
+        echo "    ❌ Failed: $(echo "$RESPONSE" | jq -r '.message')"
+    fi
 done
 
 echo ""

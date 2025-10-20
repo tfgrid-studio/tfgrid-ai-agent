@@ -15,6 +15,10 @@ apt-get install -y nodejs
 echo "📦 Installing expect..."
 apt-get install -y expect
 
+# Install socat and jq for daemon socket communication
+echo "📦 Installing socat and jq..."
+apt-get install -y socat jq
+
 # Install qwen-cli
 echo "📦 Installing qwen-cli..."
 npm install -g @qwen-code/qwen-code
