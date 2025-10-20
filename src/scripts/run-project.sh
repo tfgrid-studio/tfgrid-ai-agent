@@ -62,7 +62,8 @@ echo ""
 echo "🚀 Starting AI agent loop for project: $PROJECT_NAME"
 
 # Start the service (systemd was reloaded during deployment)
-systemctl start "tfgrid-ai-project@${PROJECT_NAME}.service"
+# Use --no-block to prevent SSH session from hanging
+systemctl start --no-block "tfgrid-ai-project@${PROJECT_NAME}.service"
 
 # Wait a moment and check if started successfully
 sleep 2
