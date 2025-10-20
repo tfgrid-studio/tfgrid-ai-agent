@@ -574,9 +574,9 @@ if [ "${SKIP_AUTOSTART:-0}" != "1" ] && [ "${NON_INTERACTIVE:-0}" != "1" ]; then
         echo "Starting AI agent for project '$PROJECT_NAME'..."
         echo ""
         
-        # Start via systemd service
-        if systemctl start "tfgrid-ai-project@${PROJECT_NAME}.service" 2>/dev/null; then
-            sleep 1
+        # Start via systemd service (--no-block to avoid hanging over SSH)
+        if systemctl start --no-block "tfgrid-ai-project@${PROJECT_NAME}.service" 2>/dev/null; then
+            sleep 2
             if systemctl is-active --quiet "tfgrid-ai-project@${PROJECT_NAME}.service"; then
                 PID=$(systemctl show -p MainPID --value "tfgrid-ai-project@${PROJECT_NAME}.service")
                 echo "✅ AI agent started successfully"
@@ -587,9 +587,10 @@ if [ "${SKIP_AUTOSTART:-0}" != "1" ] && [ "${NON_INTERACTIVE:-0}" != "1" ]; then
                 echo "📝 View logs: tfgrid-compose logs $PROJECT_NAME"
                 echo "🛑 Stop agent: tfgrid-compose stop $PROJECT_NAME"
             else
-                echo "❌ Service started but not active"
+                echo "⚠️  Service start initiated (may still be starting)"
                 echo ""
-                echo "Try manually with: tfgrid-compose run $PROJECT_NAME"
+                echo "Check status: tfgrid-compose projects"
+                echo "View logs: tfgrid-compose logs $PROJECT_NAME"
             fi
         else
             echo "❌ Failed to start service"

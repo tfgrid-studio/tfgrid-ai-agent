@@ -70,10 +70,10 @@ if systemctl is-active --quiet "tfgrid-ai-project@${PROJECT_NAME}.service"; then
     exit 0
 fi
 
-# Start via systemd
+# Start via systemd (--no-block to avoid hanging over SSH)
 echo "🔧 Starting systemd service..."
-if systemctl start "tfgrid-ai-project@${PROJECT_NAME}.service" 2>/dev/null; then
-    sleep 1
+if systemctl start --no-block "tfgrid-ai-project@${PROJECT_NAME}.service" 2>/dev/null; then
+    sleep 2
     
     if systemctl is-active --quiet "tfgrid-ai-project@${PROJECT_NAME}.service"; then
         PID=$(systemctl show -p MainPID --value "tfgrid-ai-project@${PROJECT_NAME}.service")
@@ -88,10 +88,10 @@ if systemctl start "tfgrid-ai-project@${PROJECT_NAME}.service" 2>/dev/null; then
         echo "🛑 To stop: tfgrid-compose stop $PROJECT_NAME"
         echo "📊 To monitor: tfgrid-compose monitor $PROJECT_NAME"
     else
-        echo "❌ Service started but not active"
+        echo "⚠️  Service start initiated (may still be starting)"
         echo ""
-        echo "Check logs with: journalctl -u tfgrid-ai-project@${PROJECT_NAME}.service"
-        exit 1
+        echo "Check status: tfgrid-compose projects"
+        echo "View logs: tfgrid-compose logs $PROJECT_NAME"
     fi
 else
     echo "❌ Failed to start service"
