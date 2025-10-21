@@ -556,6 +556,14 @@ if [ "$USER" = "root" ] || [ "$EUID" -eq 0 ]; then
     chown -R developer:developer "$PROJECTS_DIR/$PROJECT_NAME"
 fi
 
+# Reload systemd daemon to pick up new service template instance
+echo "🔧 Reloading systemd daemon..."
+if systemctl daemon-reload 2>/dev/null; then
+    echo "✅ Systemd daemon reloaded"
+else
+    echo "⚠️  Failed to reload systemd daemon"
+fi
+
 echo ""
 echo "✅ Project '$PROJECT_NAME' created successfully!"
 echo ""

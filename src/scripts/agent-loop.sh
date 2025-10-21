@@ -4,6 +4,9 @@
 
 # Note: NOT using 'set -e' here because we want the loop to continue even if individual Qwen commands fail
 
+# Signal handling for graceful shutdown
+trap 'echo "Received shutdown signal, exiting gracefully..."; exit 0' SIGTERM SIGINT
+
 # Accept project directory as argument (optional)
 PROJECT_DIR="${1:-$(pwd)}"
 
@@ -16,6 +19,7 @@ cd "$PROJECT_DIR" || {
 echo "Starting AI Agent Loop..."
 echo "Working directory: $(pwd)"
 echo "Starting at: $(date)"
+echo "PID: $$"
 echo "------------------------"
 
 # Configuration (all paths relative to project directory)
@@ -105,3 +109,4 @@ while true; do
 done
 
 echo "AI agent loop stopped at: $(date)"
+echo "Final status: $([ -f "$AGENT_DIR/STOP" ] && echo "Stopped by signal" || echo "Completed naturally")"

@@ -3,15 +3,15 @@ Description=TFGrid AI Agent - Project %i
 After=network.target
 
 [Service]
-Type=forking
+Type=simple
 User=developer
 Group=developer
 WorkingDirectory=/home/developer/code/tfgrid-ai-agent-projects/%i
-ExecStart=/bin/bash -c '/opt/ai-agent/scripts/agent-loop.sh /home/developer/code/tfgrid-ai-agent-projects/%i >> /home/developer/code/tfgrid-ai-agent-projects/%i/agent-output.log 2>> /home/developer/code/tfgrid-ai-agent-projects/%i/agent-errors.log &'
+ExecStart=/opt/ai-agent/scripts/agent-loop.sh /home/developer/code/tfgrid-ai-agent-projects/%i
 Restart=on-failure
 RestartSec=10
-StandardOutput=append:/home/developer/code/tfgrid-ai-agent-projects/%i/agent-output.log
-StandardError=append:/home/developer/code/tfgrid-ai-agent-projects/%i/agent-errors.log
+StandardOutput=journal
+StandardError=journal
 
 # Resource limits
 MemoryMax=2G
@@ -20,6 +20,10 @@ CPUQuota=150%
 # Environment
 Environment="PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin"
 Environment="HOME=/home/developer"
+
+# Timeout settings
+TimeoutStartSec=30
+TimeoutStopSec=30
 
 [Install]
 WantedBy=multi-user.target

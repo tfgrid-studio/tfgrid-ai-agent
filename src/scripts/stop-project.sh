@@ -45,3 +45,12 @@ else
     echo "Check status with: systemctl status tfgrid-ai-project@${PROJECT_NAME}.service"
     exit 1
 fi
+
+# Also create STOP file as backup signal
+AGENT_DIR="$PROJECT_PATH/.agent"
+mkdir -p "$AGENT_DIR"
+touch "$AGENT_DIR/STOP"
+
+echo "✅ Stop signal sent to project: $PROJECT_NAME"
+echo ""
+echo "📊 Check status: tfgrid-compose projects"

@@ -70,11 +70,15 @@ if systemctl is-active --quiet "tfgrid-ai-project@${PROJECT_NAME}.service"; then
     exit 0
 fi
 
-# Use 'at now' to schedule the start in a completely detached process
+# Start the systemd service directly
 echo "🔧 Starting systemd service..."
-echo "systemctl start tfgrid-ai-project@${PROJECT_NAME}.service" | at now 2>/dev/null
+if systemctl start "tfgrid-ai-project@${PROJECT_NAME}.service"; then
+    echo "✅ AI agent service started successfully"
+else
+    echo "❌ Failed to start AI agent service"
+    exit 1
+fi
 
-echo "✅ AI agent start initiated"
 echo "🔍 Project: $PROJECT_NAME"
 echo ""
 echo "📝 Logs:"
