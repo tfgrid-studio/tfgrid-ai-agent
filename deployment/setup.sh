@@ -19,6 +19,12 @@ apt-get install -y expect
 echo "📦 Installing jq..."
 apt-get install -y jq
 
+# Install at for async service management
+echo "📦 Installing at..."
+apt-get install -y at
+systemctl enable atd
+systemctl start atd
+
 # Install qwen-cli
 echo "📦 Installing qwen-cli..."
 npm install -g @qwen-code/qwen-code

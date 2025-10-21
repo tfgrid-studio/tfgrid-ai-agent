@@ -70,13 +70,9 @@ if systemctl is-active --quiet "tfgrid-ai-project@${PROJECT_NAME}.service"; then
     exit 0
 fi
 
-# Start via systemd using 'at now' to detach from SSH session
+# Use 'at now' to schedule the start in a completely detached process
 echo "🔧 Starting systemd service..."
-echo "systemctl start tfgrid-ai-project@${PROJECT_NAME}.service" | at now 2>/dev/null || {
-    # Fallback: if 'at' is not available, use systemd-run
-    systemd-run --unit="start-${PROJECT_NAME}-$(date +%s)" \
-        systemctl start "tfgrid-ai-project@${PROJECT_NAME}.service" 2>/dev/null
-}
+echo "systemctl start tfgrid-ai-project@${PROJECT_NAME}.service" | at now 2>/dev/null
 
 echo "✅ AI agent start initiated"
 echo "🔍 Project: $PROJECT_NAME"

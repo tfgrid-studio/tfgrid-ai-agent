@@ -573,13 +573,8 @@ if [ "${SKIP_AUTOSTART:-0}" != "1" ] && [ "${NON_INTERACTIVE:-0}" != "1" ]; then
     if [[ "$START_NOW" =~ ^[Yy]$ ]]; then
         echo "Starting AI agent for project '$PROJECT_NAME'..."
         
-        # Use 'at now' to schedule immediate execution in a separate process
-        # This completely detaches from the current SSH session
-        echo "systemctl start tfgrid-ai-project@${PROJECT_NAME}.service" | at now 2>/dev/null || {
-            # Fallback: if 'at' is not available, use systemd-run
-            systemd-run --unit="start-${PROJECT_NAME}-$(date +%s)" \
-                systemctl start "tfgrid-ai-project@${PROJECT_NAME}.service" 2>/dev/null
-        }
+        # Use 'at now' to schedule the start in a completely detached process
+        echo "systemctl start tfgrid-ai-project@${PROJECT_NAME}.service" | at now 2>/dev/null
         
         echo "✅ AI agent start initiated"
         echo "🔍 Project: $PROJECT_NAME"
