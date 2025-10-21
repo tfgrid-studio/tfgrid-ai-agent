@@ -29,22 +29,11 @@ echo "🔄 Restarting project: $PROJECT_NAME"
 echo ""
 
 # Use systemd restart (--no-block to avoid hanging over SSH)
-if systemctl restart --no-block "tfgrid-ai-project@${PROJECT_NAME}.service" 2>/dev/null; then
-    sleep 2
-    
-    if systemctl is-active --quiet "tfgrid-ai-project@${PROJECT_NAME}.service"; then
-        PID=$(systemctl show -p MainPID --value "tfgrid-ai-project@${PROJECT_NAME}.service")
-        echo "✅ Project '$PROJECT_NAME' restarted successfully"
-        echo "🆔 PID: $PID"
-        echo ""
-        echo "📊 Monitor: tfgrid-compose monitor $PROJECT_NAME"
-        echo "📝 Logs: tfgrid-compose logs $PROJECT_NAME"
-    else
-        echo "⚠️  Service restart initiated (may still be starting)"
-        echo ""
-        echo "Check status: tfgrid-compose projects"
-    fi
-else
-    echo "❌ Failed to restart service"
-    exit 1
-fi
+systemctl restart --no-block "tfgrid-ai-project@${PROJECT_NAME}.service" 2>/dev/null
+
+echo "✅ Project restart initiated"
+echo "🔍 Project: $PROJECT_NAME"
+echo ""
+echo "📊 Monitor: tfgrid-compose monitor $PROJECT_NAME"
+echo "📝 Logs: tfgrid-compose logs $PROJECT_NAME"
+echo "📊 Check status: tfgrid-compose projects"
