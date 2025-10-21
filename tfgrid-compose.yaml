@@ -73,7 +73,7 @@ commands:
     description: Create a new AI coding project
     args: "[project-name]"
     interactive: true
-    allocate_tty: true
+    allocate_tty: false
   
   select-project:
     script: /opt/ai-agent/scripts/select-project-command.sh
@@ -130,6 +130,7 @@ commands:
     description: Restart agent for a project
     args: "[project-name]"
     uses_context: active_project
+    allocate_tty: false
     
   stopall:
     script: /opt/ai-agent/scripts/stopall-projects.sh
