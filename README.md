@@ -13,6 +13,7 @@ TFGrid AI Agent is a standalone application that provides an isolated, safe envi
 - 🏝️ **Isolated Environment** - Runs on dedicated VM
 - 📦 **Project Management** - Create, edit, and manage projects
 - 🔒 **Safe** - No access to your local files
+- ⚡ **Concurrent Projects** - Run multiple AI agents simultaneously
 
 ## Quick Start
 
@@ -261,5 +262,6 @@ Apache 2.0
 
 **Part of:** [TFGrid Studio](https://github.com/tfgrid-studio)  
 **Status:** ✅ Production Ready  
-**Version:** 0.3.0  
+**Version:** 0.3.0
+**Concurrent Projects:** ✅ Multiple projects supported
 **Compatible with:** tfgrid-compose v0.11.0+ (all patterns)
