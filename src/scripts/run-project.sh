@@ -70,9 +70,9 @@ if systemctl is-active --quiet "tfgrid-ai-project@${PROJECT_NAME}.service"; then
     exit 0
 fi
 
-# Start via systemd (--no-block to avoid hanging over SSH)
+# Start via systemd in background to avoid SSH hanging
 echo "🔧 Starting systemd service..."
-systemctl start --no-block "tfgrid-ai-project@${PROJECT_NAME}.service" 2>/dev/null
+nohup systemctl start "tfgrid-ai-project@${PROJECT_NAME}.service" >/dev/null 2>&1 &
 
 echo "✅ AI agent start initiated"
 echo "🔍 Project: $PROJECT_NAME"

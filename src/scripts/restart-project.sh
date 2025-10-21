@@ -28,8 +28,8 @@ fi
 echo "🔄 Restarting project: $PROJECT_NAME"
 echo ""
 
-# Use systemd restart (--no-block to avoid hanging over SSH)
-systemctl restart --no-block "tfgrid-ai-project@${PROJECT_NAME}.service" 2>/dev/null
+# Use systemd restart in background to avoid SSH hanging
+nohup systemctl restart "tfgrid-ai-project@${PROJECT_NAME}.service" >/dev/null 2>&1 &
 
 echo "✅ Project restart initiated"
 echo "🔍 Project: $PROJECT_NAME"
