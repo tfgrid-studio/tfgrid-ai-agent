@@ -8,12 +8,22 @@ echo "🚀 Setting up tfgrid-ai-agent..."
 
 # Install Node.js
 echo "📦 Installing Node.js..."
-curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
+curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
 apt-get install -y nodejs
 
 # Install expect for OAuth automation
 echo "📦 Installing expect..."
 apt-get install -y expect
+
+# Install jq for JSON parsing
+echo "📦 Installing jq..."
+apt-get install -y jq
+
+# Install at for async service management
+echo "📦 Installing at..."
+apt-get install -y at
+systemctl enable atd
+systemctl start atd
 
 # Install qwen-cli
 echo "📦 Installing qwen-cli..."
@@ -90,6 +100,19 @@ echo "🔧 Setting up workspace permissions..."
 chown -R developer:developer /home/developer/code
 cp -r /home/developer/.qwen /root/ 2>/dev/null || echo "ℹ️  Qwen credentials not yet available (will be set up during login)"
 
+# Install systemd template service for per-project management
+echo "🔧 Installing systemd template service..."
+cp /tmp/app-source/systemd/tfgrid-ai-project@.service /etc/systemd/system/
+systemctl daemon-reload
+
+# Disable old single service if it exists
+if systemctl list-unit-files | grep -q "^tfgrid-ai-agent.service"; then
+    echo "🔧 Disabling old single-service architecture..."
+    systemctl stop tfgrid-ai-agent.service 2>/dev/null || true
+    systemctl disable tfgrid-ai-agent.service 2>/dev/null || true
+fi
+
 echo "✅ Setup complete"
 echo "👤 Developer user ready: /home/developer"
 echo "📁 Workspace: /home/developer/code"
+echo "🔧 Systemd template: tfgrid-ai-project@.service (per-project instances)"

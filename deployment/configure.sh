@@ -1,38 +1,24 @@
 #!/usr/bin/env bash
-# Configure script - Set up the ai-agent service
+# Configure script - Set up the ai-agent systemd service template
 # This runs after setup to configure the systemd service
 
 set -e
 
 echo "⚙️  Configuring tfgrid-ai-agent..."
 
-# Create systemd service (disabled by default - projects run on-demand)
-echo "📝 Creating systemd service..."
-cat > /etc/systemd/system/tfgrid-ai-agent.service << 'EOF'
-[Unit]
-Description=TFGrid AI Agent Service
-After=network.target
+# No state directory needed anymore (systemd manages everything)
+echo "✅ Using systemd for project management"
 
-[Service]
-Type=simple
-User=developer
-WorkingDirectory=/home/developer
-ExecStart=/bin/bash -c "echo 'AI Agent service started - use tfgrid-compose commands to manage projects'"
-Restart=no
-StandardOutput=append:/var/log/ai-agent/output.log
-StandardError=append:/var/log/ai-agent/error.log
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-# Reload systemd
-echo "🔄 Reloading systemd..."
-systemctl daemon-reload
-
-# Enable and start service
-echo "▶️  Starting service..."
-systemctl enable tfgrid-ai-agent
-systemctl start tfgrid-ai-agent
+# The tfgrid-ai-project@.service template was already installed by setup.sh
+# Just verify it exists
+if systemctl cat tfgrid-ai-project@.service &>/dev/null; then
+    echo "✅ Project service template installed"
+else
+    echo "❌ Project service template not found"
+    exit 1
+fi
 
 echo "✅ Configuration complete"
+echo "ℹ️  Project template: tfgrid-ai-project@.service"
+echo "ℹ️  Create projects with: tfgrid-compose create"
+echo "ℹ️  Start projects with: tfgrid-compose run <project-name>"

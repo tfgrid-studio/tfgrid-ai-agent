@@ -44,6 +44,20 @@ else
     echo ""
 fi
 
+# Check authentication FIRST before asking for any input
+echo "🔍 Checking Qwen authentication..."
+if ! su - developer -c 'test -f ~/.qwen/settings.json' 2>/dev/null; then
+    echo ""
+    echo "⚠️  Qwen is not authenticated!"
+    echo ""
+    echo "Please authenticate first by running:"
+    echo "  tfgrid-compose login"
+    echo ""
+    exit 1
+fi
+echo "✅ Authenticated"
+echo ""
+
 # Get project name from argument, env var, or prompt
 if [ -z "$PROJECT_NAME" ]; then
     PROJECT_NAME="$1"

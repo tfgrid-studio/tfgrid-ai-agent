@@ -6,13 +6,20 @@ set -e
 
 echo "🏥 Running health checks for tfgrid-ai-agent..."
 
-# Check if service is running
-echo -n "🔍 Checking service status... "
-if systemctl is-active --quiet tfgrid-ai-agent; then
-    echo "✅ Service is running"
+# Check if systemd service template exists
+echo -n "🔍 Checking systemd service template... "
+if systemctl cat tfgrid-ai-project@.service &>/dev/null; then
+    echo "✅ Service template installed"
 else
-    echo "❌ Service is NOT running"
-    systemctl status tfgrid-ai-agent
+    echo "❌ Service template not found"
+    exit 1
+fi
+
+echo -n "🔍 Checking jq... "
+if command -v jq &> /dev/null; then
+    echo "✅ jq is installed"
+else
+    echo "❌ jq is NOT installed"
     exit 1
 fi
 

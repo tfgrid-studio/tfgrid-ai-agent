@@ -72,21 +72,36 @@ commands:
     script: /opt/ai-agent/scripts/create-project.sh
     description: Create a new AI coding project
     args: "[project-name]"
+    interactive: true
+    allocate_tty: true
+  
+  select-project:
+    script: /opt/ai-agent/scripts/select-project-command.sh
+    description: Select active project for commands
+    args: "[project-name]"
+    save_to_context: active_project
     
   run:
     script: /opt/ai-agent/scripts/interactive-wrapper.sh run
     description: Start agent loop for a project
     args: "[project-name]"
+    uses_context: active_project
+    interactive: true
+    allocate_tty: false
     
   stop:
     script: /opt/ai-agent/scripts/interactive-wrapper.sh stop
     description: Stop agent loop for a project
     args: "[project-name]"
+    uses_context: active_project
     
   monitor:
     script: /opt/ai-agent/scripts/interactive-wrapper.sh monitor
     description: Monitor project progress
     args: "[project-name]"
+    uses_context: active_project
+    interactive: true
+    allocate_tty: true
     
   projects:
     script: /opt/ai-agent/scripts/status-projects.sh
@@ -96,21 +111,26 @@ commands:
     script: /opt/ai-agent/scripts/interactive-wrapper.sh remove
     description: Delete a project
     args: "[project-name]"
+    uses_context: active_project
     
   logs:
     script: /opt/ai-agent/scripts/interactive-wrapper.sh logs
     description: View project logs
     args: "[project-name]"
+    uses_context: active_project
     
   summary:
     script: /opt/ai-agent/scripts/interactive-wrapper.sh summary
     description: Show project summary
     args: "[project-name]"
+    uses_context: active_project
     
   restart:
     script: /opt/ai-agent/scripts/interactive-wrapper.sh restart
     description: Restart agent for a project
     args: "[project-name]"
+    uses_context: active_project
+    allocate_tty: false
     
   stopall:
     script: /opt/ai-agent/scripts/stopall-projects.sh
@@ -124,6 +144,8 @@ commands:
   login:
     script: /opt/ai-agent/scripts/login.sh
     description: Authenticate with Qwen (OAuth)
+    interactive: true
+    allocate_tty: true
     
   whoami:
     script: /opt/ai-agent/scripts/whoami.sh

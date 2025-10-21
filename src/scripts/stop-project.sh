@@ -1,6 +1,5 @@
 #!/bin/bash
-# stop-project.sh - Stop AI agent loop for a project
-# Part of the enhanced AI-Agent workflow
+# stop-project.sh - Stop AI agent loop via systemd service
 
 set -e
 
@@ -10,33 +9,39 @@ source "$SCRIPT_DIR/common-project.sh"
 
 PROJECT_NAME="$1"
 
+# If no argument, try to get from context
 if [ -z "$PROJECT_NAME" ]; then
-    echo "Usage: $0 <project-name>"
-    exit 1
-fi
-
-# Find project in workspace
-PROJECT_PATH=$(find_project_path "$PROJECT_NAME")
-
-if [ -z "$PROJECT_PATH" ]; then
-    echo "❌ Error: Project '$PROJECT_NAME' not found"
-    echo ""
-    echo "Available projects:"
-    list_projects_brief
-    exit 1
+    CONTEXT_FILE="$HOME/.config/tfgrid-compose/context.yaml"
+    
+    if [ -f "$CONTEXT_FILE" ]; then
+        PROJECT_NAME=$(grep "^active_project:" "$CONTEXT_FILE" 2>/dev/null | awk '{print $2}')
+    fi
+    
+    if [ -z "$PROJECT_NAME" ]; then
+        echo "❌ No project specified and no project selected"
+        echo ""
+        echo "Either:"
+        echo "  1. Run: tfgrid-compose select-project"
+        echo "  2. Or: tfgrid-compose stop <project-name>"
+        exit 1
+    fi
 fi
 
 echo "🛑 Stopping AI agent loop for project: $PROJECT_NAME"
+echo ""
 
-cd "$PROJECT_PATH"
+# Check if running
+if ! systemctl is-active --quiet "tfgrid-ai-project@${PROJECT_NAME}.service"; then
+    echo "⚠️  Project is not running"
+    exit 0
+fi
 
-# Look for running AI agent processes
-AGENT_PIDS=$(pgrep -f "agent-loop.sh" 2>/dev/null || true)
-
-if [ -n "$AGENT_PIDS" ]; then
-    echo "  killing AI agent processes: $AGENT_PIDS"
-    kill $AGENT_PIDS
-    echo "✅ AI agent loop stopped"
+# Stop via systemd
+if systemctl stop "tfgrid-ai-project@${PROJECT_NAME}.service" 2>/dev/null; then
+    echo "✅ AI agent loop stopped for: $PROJECT_NAME"
 else
-    echo "ℹ️  No running AI agent processes found"
+    echo "❌ Failed to stop service"
+    echo ""
+    echo "Check status with: systemctl status tfgrid-ai-project@${PROJECT_NAME}.service"
+    exit 1
 fi
