@@ -28,8 +28,12 @@ fi
 echo "🔄 Restarting project: $PROJECT_NAME"
 echo ""
 
-# Use systemd restart in background to avoid SSH hanging
-nohup systemctl restart "tfgrid-ai-project@${PROJECT_NAME}.service" >/dev/null 2>&1 &
+# Use 'at now' to schedule immediate execution in a separate process
+echo "systemctl restart tfgrid-ai-project@${PROJECT_NAME}.service" | at now 2>/dev/null || {
+    # Fallback: if 'at' is not available, use systemd-run
+    systemd-run --unit="restart-${PROJECT_NAME}-$(date +%s)" \
+        systemctl restart "tfgrid-ai-project@${PROJECT_NAME}.service" 2>/dev/null
+}
 
 echo "✅ Project restart initiated"
 echo "🔍 Project: $PROJECT_NAME"
