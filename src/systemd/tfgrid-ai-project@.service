@@ -3,14 +3,13 @@ Description=TFGrid AI Agent - Project %i
 After=network.target
 
 [Service]
-Type=exec
+Type=forking
 User=developer
 Group=developer
 WorkingDirectory=/home/developer/code/tfgrid-ai-agent-projects/%i
-ExecStart=/opt/ai-agent/scripts/agent-loop.sh /home/developer/code/tfgrid-ai-agent-projects/%i
+ExecStart=/bin/bash -c '/opt/ai-agent/scripts/agent-loop.sh /home/developer/code/tfgrid-ai-agent-projects/%i >> /home/developer/code/tfgrid-ai-agent-projects/%i/agent-output.log 2>> /home/developer/code/tfgrid-ai-agent-projects/%i/agent-errors.log &'
 Restart=on-failure
 RestartSec=10
-NotifyAccess=none
 StandardOutput=append:/home/developer/code/tfgrid-ai-agent-projects/%i/agent-output.log
 StandardError=append:/home/developer/code/tfgrid-ai-agent-projects/%i/agent-errors.log
 
