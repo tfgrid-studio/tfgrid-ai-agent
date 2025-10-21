@@ -572,16 +572,9 @@ if [ "${SKIP_AUTOSTART:-0}" != "1" ] && [ "${NON_INTERACTIVE:-0}" != "1" ]; then
 
     if [[ "$START_NOW" =~ ^[Yy]$ ]]; then
         echo "Starting AI agent for project '$PROJECT_NAME'..."
-        
-        # Use 'at now' to schedule the start in a completely detached process
-        echo "systemctl start tfgrid-ai-project@${PROJECT_NAME}.service" | at now 2>/dev/null
-        
-        echo "✅ AI agent start initiated"
-        echo "🔍 Project: $PROJECT_NAME"
         echo ""
-        echo "📊 Check status: tfgrid-compose projects"
-        echo "📝 View logs: tfgrid-compose logs $PROJECT_NAME"
-        echo "🛑 Stop agent: tfgrid-compose stop $PROJECT_NAME"
+        # Use the run-project.sh script directly
+        "$(dirname "${BASH_SOURCE[0]}")/run-project.sh" "$PROJECT_NAME"
     else
         echo "Next steps:"
         echo ""
