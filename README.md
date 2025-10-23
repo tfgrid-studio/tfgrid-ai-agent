@@ -17,35 +17,41 @@ TFGrid AI Agent is a standalone application that provides an isolated, safe envi
 
 ## Quick Start
 
-### Deploy with TFGrid Compose
+### Complete AI Development Environment (Recommended)
+
+For the full experience with automatic Git hosting, use **tfgrid-ai-stack**:
 
 ```bash
-# Deploy the AI agent
+# Deploy complete AI + Git environment
+tfgrid-compose up tfgrid-ai-stack
+
+# Authenticate with Qwen
+tfgrid-compose login
+
+# Create project (AI generates code + creates Git repo automatically)
+tfgrid-compose create "modern web application"
+
+# Monitor progress
+tfgrid-compose monitor web-application
+
+# View results in web interface
+tfgrid-compose projects
+```
+
+### Standalone AI Agent
+
+For standalone usage without Git integration:
+
+```bash
+# Deploy just the AI agent
 tfgrid-compose up tfgrid-ai-agent
 
 # Connect to the agent
 tfgrid-compose ssh tfgrid-ai-agent
 
-# Check logs
-tfgrid-compose logs tfgrid-ai-agent
-
-# Check status
-tfgrid-compose status tfgrid-ai-agent
-```
-
-### Inside the Agent
-
-Once connected, you can use the agent scripts:
-
-```bash
-# Create a new project
+# Use agent scripts directly
 /opt/ai-agent/scripts/create-project.sh my-project
-
-# Run the agent loop
 /opt/ai-agent/scripts/agent-loop.sh
-
-# List projects
-/opt/ai-agent/scripts/list-projects.sh
 ```
 
 ## Structure
