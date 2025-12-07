@@ -1,5 +1,9 @@
 # TFGrid AI Agent
 
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/tfgrid-studio/tfgrid-ai-agent)](https://github.com/tfgrid-studio/tfgrid-ai-agent/stargazers)
+[![GitHub issues](https://img.shields.io/github/issues/tfgrid-studio/tfgrid-ai-agent)](https://github.com/tfgrid-studio/tfgrid-ai-agent/issues)
+
 AI-powered coding agent with loop technique for safe AI coding environments.
 
 ## Overview
