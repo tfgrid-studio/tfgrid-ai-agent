@@ -258,10 +258,15 @@ Contributions welcome! Please:
 
 Apache 2.0
 
+## Support
+
+- **📚 Documentation:** [docs.tfgrid.studio](https://docs.tfgrid.studio)
+- **🐛 Issues:** [GitHub Issues](https://github.com/tfgrid-studio/tfgrid-ai-agent/issues)
+- **💬 Discussions:** [GitHub Discussions](https://github.com/orgs/tfgrid-studio/discussions)
+- **📧 Contact:** [tfgrid.studio/contact](https://tfgrid.studio/contact)
+
 ## Links
 
-- **GitHub:** [tfgrid-studio/tfgrid-ai-agent](https://github.com/tfgrid-studio/tfgrid-ai-agent)
-- **Documentation:** [docs.tfgrid.studio](https://docs.tfgrid.studio)
 - **TFGrid Studio:** [github.com/tfgrid-studio](https://github.com/tfgrid-studio)
 
 ---
